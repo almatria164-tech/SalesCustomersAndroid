@@ -62,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResult(
                             @NonNull GetCredentialResponse response) {
+
                         handleCredential(response.getCredential());
                     }
 
@@ -69,9 +70,16 @@ public class LoginActivity extends AppCompatActivity {
                     public void onError(
                             @NonNull GetCredentialException e) {
 
+                        String error =
+                                e.getClass().getSimpleName();
+
+                        if (e.getMessage() != null) {
+                            error += "\n" + e.getMessage();
+                        }
+
                         Toast.makeText(
                                 LoginActivity.this,
-                                "فشل تسجيل الدخول إلى Google",
+                                "Google:\n" + error,
                                 Toast.LENGTH_LONG
                         ).show();
                     }
@@ -85,7 +93,8 @@ public class LoginActivity extends AppCompatActivity {
             CustomCredential customCredential =
                     (CustomCredential) credential;
 
-            if (GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            if (GoogleIdTokenCredential
+                    .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                     .equals(customCredential.getType())) {
 
                 GoogleIdTokenCredential googleCredential =
@@ -94,7 +103,23 @@ public class LoginActivity extends AppCompatActivity {
 
                 firebaseAuthWithGoogle(
                         googleCredential.getIdToken());
+
+            } else {
+
+                Toast.makeText(
+                        this,
+                        "نوع حساب Google غير مدعوم",
+                        Toast.LENGTH_LONG
+                ).show();
             }
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "لم يتم الحصول على بيانات Google",
+                    Toast.LENGTH_LONG
+            ).show();
         }
     }
 
@@ -109,15 +134,25 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
 
                         startActivity(
-                                new Intent(this, MainActivity.class));
+                                new Intent(
+                                        this,
+                                        MainActivity.class));
 
                         finish();
 
                     } else {
 
+                        String error = "فشل Firebase";
+
+                        if (task.getException() != null) {
+                            error += "\n"
+                                    + task.getException()
+                                    .getMessage();
+                        }
+
                         Toast.makeText(
                                 this,
-                                "فشل تسجيل الدخول",
+                                error,
                                 Toast.LENGTH_LONG
                         ).show();
                     }

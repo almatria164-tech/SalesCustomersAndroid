@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "644560466893",
+    "project_id": "salescustomerscloud-a1402",
+    "storage_bucket": "salescustomerscloud-a1402.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644560466893:android:b434ec30576f9eee238a84",
+        "android_client_info": {
+          "package_name": "com.example.salescustomers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOPYYR_FDgShL9km_DE5XRa_a2KdxMPtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

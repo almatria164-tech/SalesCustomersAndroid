@@ -14,7 +14,7 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,16 +39,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private void signInWithGoogle() {
 
-        GetGoogleIdOption googleIdOption =
-                new GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(
-                                getString(R.string.default_web_client_id))
+        GetSignInWithGoogleOption googleOption =
+                new GetSignInWithGoogleOption.Builder(
+                        getString(R.string.default_web_client_id))
                         .build();
 
         GetCredentialRequest request =
                 new GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
+                        .addCredentialOption(googleOption)
                         .build();
 
         credentialManager.getCredentialAsync(

@@ -2,6 +2,7 @@ package com.example.salescustomers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -20,6 +21,8 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.security.SecureRandom;
+
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -34,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         credentialManager = CredentialManager.create(this);
 
         Button googleButton = findViewById(R.id.googleSignInButton);
+
         googleButton.setOnClickListener(v -> signInWithGoogle());
     }
 
@@ -42,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         GetSignInWithGoogleOption googleOption =
                 new GetSignInWithGoogleOption.Builder(
                         getString(R.string.default_web_client_id))
+                        .setNonce(generateNonce())
                         .build();
 
         GetCredentialRequest request =
@@ -55,13 +60,15 @@ public class LoginActivity extends AppCompatActivity {
                 null,
                 getMainExecutor(),
                 new androidx.credentials.CredentialManagerCallback<
-                        GetCredentialResponse, GetCredentialException>() {
+                        GetCredentialResponse,
+                        GetCredentialException>() {
 
                     @Override
                     public void onResult(
                             @NonNull GetCredentialResponse response) {
 
-                        handleCredential(response.getCredential());
+                        handleCredential(
+                                response.getCredential());
                     }
 
                     @Override
@@ -95,12 +102,23 @@ public class LoginActivity extends AppCompatActivity {
                     .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                     .equals(customCredential.getType())) {
 
-                GoogleIdTokenCredential googleCredential =
-                        GoogleIdTokenCredential.createFrom(
-                                customCredential.getData());
+                try {
 
-                firebaseAuthWithGoogle(
-                        googleCredential.getIdToken());
+                    GoogleIdTokenCredential googleCredential =
+                            GoogleIdTokenCredential.createFrom(
+                                    customCredential.getData());
+
+                    firebaseAuthWithGoogle(
+                            googleCredential.getIdToken());
+
+                } catch (Exception e) {
+
+                    Toast.makeText(
+                            this,
+                            "بيانات Google غير صالحة",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
 
             } else {
 
@@ -124,36 +142,54 @@ public class LoginActivity extends AppCompatActivity {
     private void firebaseAuthWithGoogle(String idToken) {
 
         AuthCredential credential =
-                GoogleAuthProvider.getCredential(idToken, null);
+                GoogleAuthProvider.getCredential(
+                        idToken,
+                        null);
 
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
+                .addOnCompleteListener(
+                        this,
+                        task -> {
 
-                    if (task.isSuccessful()) {
+                            if (task.isSuccessful()) {
 
-                        startActivity(
-                                new Intent(
+                                startActivity(
+                                        new Intent(
+                                                this,
+                                                MainActivity.class));
+
+                                finish();
+
+                            } else {
+
+                                String error =
+                                        "فشل تسجيل الدخول في Firebase";
+
+                                if (task.getException() != null) {
+                                    error += "\n"
+                                            + task.getException()
+                                            .getMessage();
+                                }
+
+                                Toast.makeText(
                                         this,
-                                        MainActivity.class));
+                                        error,
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            }
+                        });
+    }
 
-                        finish();
+    private String generateNonce() {
 
-                    } else {
+        byte[] nonce = new byte[32];
 
-                        String error = "فشل Firebase";
+        new SecureRandom().nextBytes(nonce);
 
-                        if (task.getException() != null) {
-                            error += "\n"
-                                    + task.getException()
-                                    .getMessage();
-                        }
-
-                        Toast.makeText(
-                                this,
-                                error,
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                });
+        return Base64.encodeToString(
+                nonce,
+                Base64.NO_WRAP
+                        | Base64.URL_SAFE
+                        | Base64.NO_PADDING);
     }
 }

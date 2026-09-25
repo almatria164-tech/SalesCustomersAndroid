@@ -16,7 +16,6 @@ import androidx.credentials.exceptions.GetCredentialException;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -25,9 +24,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private CredentialManager credentialManager;
-
-    private static final String GOOGLE_ID_TOKEN_TYPE =
-            "com.google.android.libraries.identity.googleid.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,24 +85,15 @@ public class LoginActivity extends AppCompatActivity {
             CustomCredential customCredential =
                     (CustomCredential) credential;
 
-            if (GOOGLE_ID_TOKEN_TYPE.equals(customCredential.getType())) {
+            if (GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                    .equals(customCredential.getType())) {
 
-                try {
-                    GoogleIdTokenCredential googleCredential =
-                            GoogleIdTokenCredential.createFrom(
-                                    customCredential.getData());
+                GoogleIdTokenCredential googleCredential =
+                        GoogleIdTokenCredential.createFrom(
+                                customCredential.getData());
 
-                    firebaseAuthWithGoogle(
-                            googleCredential.getIdToken());
-
-                } catch (GoogleIdTokenParsingException e) {
-
-                    Toast.makeText(
-                            this,
-                            "تعذر قراءة حساب Google",
-                            Toast.LENGTH_LONG
-                    ).show();
-                }
+                firebaseAuthWithGoogle(
+                        googleCredential.getIdToken());
             }
         }
     }

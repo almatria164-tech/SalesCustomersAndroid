@@ -1,5 +1,6 @@
 package com.example.salescustomers;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -10,6 +11,7 @@ import androidx.credentials.Credential;
 import androidx.credentials.CredentialManager;
 import androidx.credentials.CustomCredential;
 import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
@@ -36,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
         credentialManager = CredentialManager.create(this);
 
         Button googleButton = findViewById(R.id.googleSignInButton);
-
         googleButton.setOnClickListener(v -> signInWithGoogle());
     }
 
@@ -59,12 +60,13 @@ public class LoginActivity extends AppCompatActivity {
                 request,
                 null,
                 getMainExecutor(),
-                new androidx.credentials.CredentialManagerCallback<Credential,
-                        GetCredentialException>() {
+                new androidx.credentials.CredentialManagerCallback<
+                        GetCredentialResponse, GetCredentialException>() {
 
                     @Override
-                    public void onResult(@NonNull Credential credential) {
-                        handleCredential(credential);
+                    public void onResult(
+                            @NonNull GetCredentialResponse response) {
+                        handleCredential(response.getCredential());
                     }
 
                     @Override
@@ -120,9 +122,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
 
                         startActivity(
-                                new android.content.Intent(
-                                        this,
-                                        MainActivity.class));
+                                new Intent(this, MainActivity.class));
 
                         finish();
 

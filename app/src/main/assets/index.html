@@ -2,2209 +2,5448 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
 <title>نظام المبيعات والزبائن</title>
 
 <style>
-*{box-sizing:border-box}
+:root{
+  --primary:#1769aa;
+  --primary2:#0d47a1;
+  --accent:#00a884;
+  --danger:#d93025;
+  --warning:#f59e0b;
+  --success:#16a34a;
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#718096;
+  --border:#e5eaf1;
+  --shadow:0 8px 25px rgba(23,42,70,.08);
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    Tahoma,
+    Arial,
+    "Noto Sans Arabic",
+    sans-serif;
+}
 
 body{
-margin:0;
-font-family:Arial,Tahoma,sans-serif;
-background:#f4f6f8;
-color:#222
+  overflow-x:hidden;
 }
 
-header{
-background:#1769aa;
-color:white;
-padding:16px 20px;
-font-size:22px;
-font-weight:bold
+.app{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-nav{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-padding:10px;
-background:white;
-border-bottom:1px solid #ddd
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:linear-gradient(
+    135deg,
+    var(--primary2),
+    var(--primary)
+  );
+  color:#fff;
+  box-shadow:0 4px 18px rgba(13,71,161,.22);
 }
 
-nav button{
-border:0;
-padding:10px 14px;
-border-radius:8px;
-background:#e8eef5;
-cursor:pointer
+.topbar-inner{
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 16px;
 }
 
-nav button.active{
-background:#1769aa;
-color:#fff
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
 }
 
-main{
-padding:18px;
-max-width:1300px;
-margin:auto
+.brand-logo{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.16);
+  font-size:22px;
+  flex:none;
+}
+
+.brand-text{
+  min-width:0;
+}
+
+.brand-title{
+  font-size:18px;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.brand-subtitle{
+  margin-top:3px;
+  font-size:11px;
+  opacity:.78;
+}
+
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.icon-btn{
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:13px;
+  background:rgba(255,255,255,.13);
+  color:#fff;
+  font-size:19px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.icon-btn:active{
+  transform:scale(.96);
+  background:rgba(255,255,255,.22);
+}
+
+.main{
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  padding:18px 14px 100px;
+  flex:1;
 }
 
 .page{
-display:none
+  display:none;
+  animation:pageIn .2s ease;
 }
 
 .page.active{
-display:block
+  display:block;
 }
 
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:12px
+@keyframes pageIn{
+  from{
+    opacity:0;
+    transform:translateY(5px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
 }
 
-.card{
-background:white;
-border-radius:12px;
-padding:16px;
-box-shadow:0 1px 5px #0001
+.page-title{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:18px;
 }
 
-.card b{
-display:block;
-font-size:24px;
-margin-top:8px
+.page-title h1{
+  margin:0;
+  font-size:25px;
+  font-weight:900;
 }
 
-.toolbar{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-margin:12px 0
+.page-title p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
 }
 
-input,select,textarea{
-padding:9px;
-border:1px solid #ccd3da;
-border-radius:7px;
-width:100%;
-font-family:inherit
-}
-
-textarea{
-min-height:80px;
-resize:vertical
+.page-title-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
 }
 
 .btn{
-background:#1769aa;
-color:white;
-border:0;
-padding:10px 15px;
-border-radius:7px;
-cursor:pointer
+  border:0;
+  min-height:44px;
+  padding:0 16px;
+  border-radius:13px;
+  font-size:14px;
+  font-weight:800;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  transition:.15s;
 }
 
-.btn.red{
-background:#c62828
+.btn:active{
+  transform:scale(.97);
 }
 
-.btn.green{
-background:#2e7d32
+.btn-primary{
+  color:#fff;
+  background:linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary2)
+  );
+  box-shadow:0 5px 14px rgba(23,105,170,.18);
 }
 
-.btn.orange{
-background:#ef6c00
+.btn-success{
+  color:#fff;
+  background:var(--success);
 }
 
-.tablewrap{
-overflow:auto;
-background:white;
-border-radius:10px
+.btn-danger{
+  color:#fff;
+  background:var(--danger);
+}
+
+.btn-light{
+  color:var(--text);
+  background:#eef3f8;
+}
+
+.btn-outline{
+  color:var(--primary);
+  background:#fff;
+  border:1px solid #cbd8e7;
+}
+
+.btn-small{
+  min-height:36px;
+  padding:0 11px;
+  font-size:12px;
+  border-radius:10px;
+}
+
+.welcome{
+  background:linear-gradient(
+    135deg,
+    #0d47a1,
+    #1976d2
+  );
+  color:#fff;
+  border-radius:22px;
+  padding:21px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+
+.welcome-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.welcome h2{
+  margin:0;
+  font-size:21px;
+}
+
+.welcome p{
+  margin:7px 0 0;
+  opacity:.82;
+  font-size:13px;
+}
+
+.user-badge{
+  width:48px;
+  height:48px;
+  border-radius:15px;
+  background:rgba(255,255,255,.16);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:23px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+  margin-bottom:18px;
+}
+
+.stat{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:var(--shadow);
+  min-width:0;
+}
+
+.stat-icon{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:10px;
+  font-size:18px;
+  background:#eef5ff;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+}
+
+.stat-value{
+  margin-top:5px;
+  font-size:20px;
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.stat.green .stat-icon{
+  background:#eaf8f1;
+}
+
+.stat.orange .stat-icon{
+  background:#fff5e6;
+}
+
+.stat.red .stat-icon{
+  background:#fff0ef;
+}
+
+.stat.purple .stat-icon{
+  background:#f4efff;
+}
+
+.section-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:17px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.section-head h3{
+  margin:0;
+  font-size:17px;
+}
+
+.section-head span{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+.quick{
+  border:1px solid var(--border);
+  background:#f9fbfd;
+  border-radius:15px;
+  min-height:76px;
+  padding:12px;
+  text-align:right;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.quick-icon{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  background:#eaf3ff;
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:19px;
+  flex:none;
+}
+
+.quick strong{
+  display:block;
+  font-size:13px;
+}
+
+.quick small{
+  display:block;
+  color:var(--muted);
+  margin-top:4px;
+  font-size:10px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.field.full{
+  grid-column:1/-1;
+}
+
+.field label{
+  font-size:12px;
+  color:#4b5563;
+  font-weight:800;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid #d9e1eb;
+  background:#fff;
+  color:var(--text);
+  border-radius:12px;
+  min-height:45px;
+  padding:10px 12px;
+  outline:none;
+  font-size:14px;
+}
+
+.field textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(23,105,170,.09);
+}
+
+.form-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid var(--border);
+  border-radius:15px;
 }
 
 table{
-border-collapse:collapse;
-width:100%;
-min-width:850px
+  width:100%;
+  min-width:700px;
+  border-collapse:collapse;
+  background:#fff;
 }
 
-th,td{
-padding:10px;
-border-bottom:1px solid #eee;
-text-align:right
+th,
+td{
+  padding:12px 10px;
+  border-bottom:1px solid #edf1f5;
+  text-align:right;
+  font-size:12px;
+  white-space:nowrap;
 }
 
 th{
-background:#eef3f8
+  background:#f6f9fc;
+  color:#4b5563;
+  font-weight:900;
 }
 
-.empty{
-padding:25px;
-text-align:center;
-color:#777
-}
-
-.modal{
-position:fixed;
-inset:0;
-background:#0007;
-display:none;
-align-items:center;
-justify-content:center;
-padding:15px;
-z-index:1000
-}
-
-.modal.show{
-display:flex
-}
-
-.box{
-background:white;
-border-radius:12px;
-padding:20px;
-width:min(650px,100%);
-max-height:90vh;
-overflow:auto
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px
-}
-
-.full{
-grid-column:1/-1
-}
-
-label{
-font-size:13px;
-color:#555
+tr:last-child td{
+  border-bottom:0;
 }
 
 .actions{
-display:flex;
-gap:8px;
-margin-top:15px;
-flex-wrap:wrap
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
 }
 
-@media(max-width:600px){
-.grid{
-grid-template-columns:1fr
+.empty{
+  padding:35px 15px;
+  text-align:center;
+  color:var(--muted);
 }
 
-.full{
-grid-column:auto
+.empty-icon{
+  font-size:35px;
+  margin-bottom:8px;
 }
 
-header{
-font-size:18px
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
 }
+
+.badge-success{
+  background:#eaf8f1;
+  color:#087443;
+}
+
+.badge-danger{
+  background:#fff0ef;
+  color:#b42318;
+}
+
+.badge-warning{
+  background:#fff5df;
+  color:#a15c00;
+}
+
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:60;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);
+  box-shadow:0 -5px 20px rgba(20,40,70,.08);
+}
+
+.nav-inner{
+  max-width:720px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  padding:7px 5px calc(7px + env(safe-area-inset-bottom));
+}
+
+.nav-btn{
+  border:0;
+  background:transparent;
+  color:#7b8798;
+  min-height:58px;
+  border-radius:13px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.nav-btn .nav-icon{
+  font-size:20px;
+  line-height:20px;
+}
+
+.nav-btn.active{
+  color:var(--primary);
+  background:#eef5ff;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(10,20,35,.48);
+  padding:0;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  width:100%;
+  max-width:680px;
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:24px 24px 0 0;
+  padding:20px;
+  animation:modalUp .2s ease;
+}
+
+@keyframes modalUp{
+  from{
+    transform:translateY(30px);
+    opacity:0;
+  }
+  to{
+    transform:none;
+    opacity:1;
+  }
+}
+
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.modal-head h2{
+  margin:0;
+  font-size:19px;
+}
+
+.close{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:11px;
+  background:#eef2f6;
+  font-size:18px;
+}
+
+.toast{
+  position:fixed;
+  z-index:200;
+  left:14px;
+  right:14px;
+  bottom:86px;
+  max-width:480px;
+  margin:auto;
+  padding:13px 16px;
+  border-radius:14px;
+  color:#fff;
+  background:#172033;
+  box-shadow:0 8px 25px rgba(0,0,0,.2);
+  text-align:center;
+  font-size:13px;
+  font-weight:700;
+  display:none;
+}
+
+.toast.show{
+  display:block;
+  animation:toastIn .2s ease;
+}
+
+@keyframes toastIn{
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+.setting-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 0;
+  border-bottom:1px solid #edf1f5;
+}
+
+.setting-row:last-child{
+  border-bottom:0;
+}
+
+.setting-info{
+  min-width:0;
+}
+
+.setting-title{
+  font-size:14px;
+  font-weight:800;
+}
+
+.setting-desc{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.switch{
+  width:48px;
+  height:28px;
+  border:0;
+  border-radius:999px;
+  background:#d7dee8;
+  position:relative;
+  flex:none;
+}
+
+.switch::after{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  top:3px;
+  right:3px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 5px rgba(0,0,0,.15);
+  transition:.2s;
+}
+
+.switch.on{
+  background:var(--primary);
+}
+
+.switch.on::after{
+  right:23px;
+}
+
+body.dark{
+  --bg:#0f1720;
+  --card:#17212d;
+  --text:#f1f5f9;
+  --muted:#9aa8b8;
+  --border:#273444;
+}
+
+body.dark .field input,
+body.dark .field select,
+body.dark .field textarea,
+body.dark .quick,
+body.dark table,
+body.dark .modal-box{
+  background:#17212d;
+  color:#f1f5f9;
+}
+
+body.dark th{
+  background:#202d3b;
+  color:#d8e0e8;
+}
+
+body.dark .quick{
+  border-color:#2b3949;
+}
+
+body.dark .bottom-nav{
+  background:rgba(23,33,45,.97);
+}
+
+body.dark .nav-btn.active{
+  background:#203a58;
+}
+
+@media(min-width:760px){
+
+  .main{
+    padding:25px 22px 40px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
+  .quick-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+
+  .bottom-nav{
+    position:static;
+    border-top:0;
+    box-shadow:none;
+    background:transparent;
+    margin-bottom:20px;
+  }
+
+  .nav-inner{
+    max-width:1200px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:17px;
+    box-shadow:var(--shadow);
+    grid-template-columns:repeat(5,1fr);
+    padding:5px;
+  }
+
+  .nav-btn{
+    flex-direction:row;
+    gap:7px;
+  }
+
+  .modal{
+    align-items:center;
+    padding:20px;
+  }
+
+  .modal-box{
+    border-radius:22px;
+  }
+}
+
+@media print{
+
+  body{
+    background:#fff !important;
+  }
+
+  .topbar,
+  .bottom-nav,
+  .no-print,
+  button,
+  .page-title-actions{
+    display:none !important;
+  }
+
+  .main{
+    max-width:none;
+    padding:0;
+  }
+
+  .page{
+    display:none !important;
+  }
+
+  #printPage{
+    display:block !important;
+  }
+
+  .print-sheet{
+    display:block !important;
+    width:100%;
+    color:#000;
+    background:#fff;
+  }
+
+  @page{
+    size:A4;
+    margin:12mm;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<header>📊 نظام المبيعات والزبائن</header>
+<div class="app">
 
-<nav id="nav"></nav>
+<header class="topbar no-print">
 
-<main>
- <section id="home" class="page active">
+<div class="topbar-inner">
 
-<h2>🏠 الرئيسية</h2>
+<div class="brand">
 
-<div class="cards">
+<div class="brand-logo">▣</div>
 
-<div class="card">
-إجمالي المبيعات
-<b id="dashSales">0.00</b>
+<div class="brand-text">
+
+<div class="brand-title" id="appTitle">
+نظام المبيعات والزبائن
 </div>
 
-<div class="card">
-إجمالي المقبوضات
-<b id="dashReceipts">0.00</b>
-</div>
-
-<div class="card">
-إجمالي العمولة
-<b id="dashCommission">0.00</b>
-</div>
-
-<div class="card">
-إجمالي الخصومات
-<b id="dashDiscounts">0.00</b>
-</div>
-
-<div class="card">
-إجمالي المرتجعات
-<b id="dashReturns">0.00</b>
-</div>
-
-<div class="card">
-إجمالي المتبقي
-<b id="dashDue">0.00</b>
+<div class="brand-subtitle" id="userEmailText">
+الحساب
 </div>
 
 </div>
-</section>
 
+</div>
 
-<section id="customers" class="page">
-
-<h2>👥 الزبائن</h2>
-
-<div class="toolbar">
+<div class="header-actions">
 
 <button
-class="btn"
-onclick="openCustomer()">
-+ زبون جديد
+class="icon-btn"
+type="button"
+onclick="showPage('settings')"
+aria-label="الإعدادات">
+⚙
 </button>
+
+</div>
+
+</div>
+</header>
+
+<main class="main">
+
+<section
+class="page active"
+id="page-home">
+
+<div class="welcome">
+
+<div class="welcome-row">
+
+<div>
+
+<h2 id="welcomeTitle">
+لوحة التحكم
+</h2>
+
+<p id="welcomeText">
+إدارة المبيعات والعملاء والمقبوضات بسهولة
+</p>
+
+</div>
+
+<div class="user-badge">
+👤
+</div>
+
+</div>
+
+</div>
+
+<div class="stats">
+
+<div class="stat">
+
+<div class="stat-icon">💰</div>
+
+<div class="stat-label">
+إجمالي المبيعات
+</div>
+
+<div
+class="stat-value"
+id="totalSalesText">
+0.00
+</div>
+
+</div>
+
+<div class="stat green">
+
+<div class="stat-icon">💵</div>
+
+<div class="stat-label">
+إجمالي المقبوضات
+</div>
+
+<div
+class="stat-value"
+id="totalReceiptsText">
+0.00
+</div>
+
+</div>
+
+<div class="stat orange">
+
+<div class="stat-icon">٪</div>
+
+<div class="stat-label">
+إجمالي العمولة
+</div>
+
+<div
+class="stat-value"
+id="commissionText">
+0.00
+</div>
+
+</div>
+
+<div class="stat purple">
+
+<div class="stat-icon">🏷</div>
+
+<div class="stat-label">
+إجمالي الخصومات
+</div>
+
+<div
+class="stat-value"
+id="discountText">
+0.00
+</div>
+
+</div>
+
+<div class="stat red">
+
+<div class="stat-icon">↩</div>
+
+<div class="stat-label">
+إجمالي المرتجعات
+</div>
+
+<div
+class="stat-value"
+id="returnsText">
+0.00
+</div>
+
+</div>
+
+<div class="stat">
+
+<div class="stat-icon">📌</div>
+
+<div class="stat-label">
+المتبقي
+</div>
+
+<div
+class="stat-value"
+id="dueText">
+0.00
+</div>
+
+</div>
+
+</div>
+
+<div class="section-card">
+
+<div class="section-head">
+
+<h3>الوصول السريع</h3>
+
+<span>اختصارات</span>
+
+</div>
+
+<div class="quick-grid">
+
+<button
+class="quick"
+type="button"
+onclick="openSaleForm()">
+
+<span class="quick-icon">🧾</span>
+
+<span>
+<strong>فاتورة جديدة</strong>
+<small>إضافة فاتورة</small>
+</span>
+
+</button>
+
+<button
+class="quick"
+type="button"
+onclick="openReceiptForm()">
+
+<span class="quick-icon">💵</span>
+
+<span>
+<strong>سند قبض</strong>
+<small>تسجيل مقبوضات</small>
+</span>
+
+</button>
+
+<button
+class="quick"
+type="button"
+onclick="openCustomerForm()">
+
+<span class="quick-icon">👤</span>
+
+<span>
+<strong>عميل جديد</strong>
+<small>إضافة عميل</small>
+</span>
+
+</button>
+
+<button
+class="quick"
+type="button"
+onclick="showPage('statement')">
+
+<span class="quick-icon">📊</span>
+
+<span>
+<strong>كشف الحساب</strong>
+<small>متابعة الحسابات</small>
+</span>
+
+</button>
+
+</div>
+
+</div>
+
+<div class="section-card">
+
+<div class="section-head">
+
+<h3>ملخص النظام</h3>
+
+<span id="summaryDate"></span>
+
+</div>
+
+<div id="homeSummary">
+
+<div class="empty">
+
+<div class="empty-icon">📋</div>
+
+جاري تحميل البيانات...
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section
+class="page"
+id="page-customers">
+
+<div class="page-title">
+
+<div>
+
+<h1>العملاء</h1>
+
+<p>
+إدارة العملاء ونسب العمولة والحسابات
+</p>
+
+</div>
+
+<div class="page-title-actions">
+
+<button
+class="btn btn-primary"
+type="button"
+onclick="openCustomerForm()">
+＋ عميل
+</button>
+
+</div>
+
+</div>
+
+<div class="section-card">
+
+<div class="field">
+
+<label>
+بحث عن عميل
+</label>
 
 <input
 id="customerSearch"
-placeholder="بحث عن زبون..."
-oninput="render()">
+type="search"
+placeholder="اكتب اسم العميل..."
+oninput="renderCustomers()">
 
 </div>
 
-<div class="tablewrap">
+</div>
 
-<table>
+<div class="section-card">
 
-<thead>
-
-<tr>
-<th>الكود</th>
-<th>الاسم</th>
-<th>الهاتف</th>
-<th>نسبة العمولة</th>
-<th>المبيعات</th>
-<th>المقبوض</th>
-<th>المتبقي</th>
-<th>العمولة</th>
-<th>الإجراءات</th>
-</tr>
-
-</thead>
-
-<tbody id="customersBody"></tbody>
-
-</table>
+<div
+id="customersTable">
+</div>
 
 </div>
 
 </section>
 
+<section
+class="page"
+id="page-sales">
 
-<section id="sales" class="page">
+<div class="page-title">
 
-<h2>🧾 الفواتير</h2>
+<div>
 
-<div class="toolbar">
+<h1>الفواتير</h1>
+
+<p>
+إضافة وتعديل وحذف وطباعة الفواتير
+</p>
+
+</div>
+
+<div class="page-title-actions">
 
 <button
-class="btn"
-onclick="openSale()">
-+ فاتورة جديدة
+class="btn btn-primary"
+type="button"
+onclick="openSaleForm()">
+＋ فاتورة
 </button>
 
 </div>
 
-<div class="tablewrap">
+</div>
 
-<table>
+<div class="section-card">
 
-<thead>
+<div class="field">
 
-<tr>
-<th>رقم الفاتورة</th>
-<th>التاريخ</th>
-<th>الزبون</th>
-<th>الإجمالي</th>
-<th>الخصم</th>
-<th>الصافي</th>
-<th>الملاحظات</th>
-<th>الإجراءات</th>
-</tr>
+<label>
+بحث في الفواتير
+</label>
 
-</thead>
+<input
+id="salesSearch"
+type="search"
+placeholder="رقم الفاتورة أو اسم العميل..."
+oninput="renderSales()">
 
-<tbody id="salesBody"></tbody>
+</div>
 
-</table>
+</div>
+
+<div class="section-card">
+
+<div
+id="salesTable">
+</div>
 
 </div>
 
 </section>
 
+<section
+class="page"
+id="page-receipts">
 
-<section id="receipts" class="page">
+<div class="page-title">
 
-<h2>💰 سندات القبض</h2>
+<div>
 
-<div class="toolbar">
+<h1>سندات القبض</h1>
+
+<p>
+تسجيل المقبوضات وحساب العمولة تلقائيًا
+</p>
+
+</div>
+
+<div class="page-title-actions">
 
 <button
-class="btn green"
-onclick="openReceipt()">
-+ سند قبض
+class="btn btn-success"
+type="button"
+onclick="openReceiptForm()">
+＋ سند قبض
 </button>
 
 </div>
 
-<div class="tablewrap">
+</div>
 
-<table>
+<div class="section-card">
 
-<thead>
+<div class="field">
 
-<tr>
-<th>رقم السند</th>
-<th>التاريخ</th>
-<th>الزبون</th>
-<th>المبلغ</th>
-<th>طريقة الدفع</th>
-<th>الفاتورة</th>
-<th>الإجراءات</th>
-</tr>
+<label>
+بحث في السندات
+</label>
 
-</thead>
+<input
+id="receiptSearch"
+type="search"
+placeholder="رقم السند أو اسم العميل..."
+oninput="renderReceipts()">
 
-<tbody id="receiptsBody"></tbody>
+</div>
 
-</table>
+</div>
+
+<div class="section-card">
+
+<div
+id="receiptsTable">
+</div>
 
 </div>
 
 </section>
 
+<section
+class="page"
+id="page-returns">
 
-<section id="returns" class="page">
+<div class="page-title">
 
-<h2>↩️ المرتجعات</h2>
+<div>
 
-<div class="toolbar">
+<h1>المرتجعات</h1>
+
+<p>
+إدارة المرتجعات وربطها بالفواتير
+</p>
+
+</div>
+
+<div class="page-title-actions">
 
 <button
-class="btn orange"
-onclick="openReturn()">
-+ مرتجع جديد
+class="btn btn-danger"
+type="button"
+onclick="openReturnForm()">
+＋ مرتجع
 </button>
 
 </div>
 
-<div class="tablewrap">
+</div>
 
-<table>
+<div class="section-card">
 
-<thead>
-
-<tr>
-<th>رقم المرتجع</th>
-<th>التاريخ</th>
-<th>الزبون</th>
-<th>رقم الفاتورة</th>
-<th>المبلغ</th>
-<th>الملاحظات</th>
-<th>الإجراءات</th>
-</tr>
-
-</thead>
-
-<tbody id="returnsBody"></tbody>
-
-</table>
+<div
+id="returnsTable">
+</div>
 
 </div>
 
 </section>
 
+<section
+class="page"
+id="page-statement">
 
-<section id="statement" class="page">
+<div class="page-title">
 
-<h2>📒 كشف الحساب</h2>
+<div>
 
-<div class="toolbar">
+<h1>كشف الحساب</h1>
+
+<p>
+الحركة المالية للعميل
+</p>
+
+</div>
+
+</div>
+
+<div class="section-card">
+
+<div class="field">
+
+<label>
+العميل
+</label>
 
 <select
 id="statementCustomer"
 onchange="renderStatement()">
+</select>
 
-<option value="">
-اختر زبونًا
+</div>
+
+</div>
+
+<div
+id="statementContent">
+</div>
+
+</section>
+
+<section
+class="page"
+id="page-settings">
+
+<div class="page-title">
+
+<div>
+
+<h1>الإعدادات</h1>
+
+<p>
+تخصيص التطبيق والحساب والفواتير
+</p>
+
+</div>
+
+</div>
+
+<div class="section-card">
+
+<div class="section-head">
+
+<h3>المظهر</h3>
+
+</div>
+
+<div class="setting-row">
+
+<div class="setting-info">
+
+<div class="setting-title">
+الوضع الليلي
+</div>
+
+<div class="setting-desc">
+تغيير مظهر التطبيق
+</div>
+
+</div>
+
+<button
+id="darkSwitch"
+class="switch"
+type="button"
+onclick="toggleDarkMode()">
+</button>
+
+</div>
+
+</div>
+
+<div class="section-card">
+
+<div class="section-head">
+
+<h3>اللغة</h3>
+
+</div>
+
+<div class="setting-row">
+
+<div class="setting-info">
+
+<div class="setting-title">
+لغة التطبيق
+</div>
+
+<div class="setting-desc">
+العربية / English
+</div>
+
+</div>
+
+<select
+id="languageSelect"
+onchange="changeLanguage(this.value)"
+style="width:130px;min-height:42px;border:1px solid #d9e1eb;border-radius:11px;padding:7px;">
+
+<option value="ar">
+العربية
+</option>
+
+<option value="en">
+English
 </option>
 
 </select>
 
 </div>
 
-<div class="tablewrap">
+</div>
 
-<table>
+<div class="section-card">
 
-<thead>
+<div class="section-head">
 
-<tr>
-<th>التاريخ</th>
-<th>البيان</th>
-<th>مدين</th>
-<th>دائن</th>
-<th>الرصيد</th>
-</tr>
+<h3>بيانات المنشأة</h3>
 
-</thead>
+</div>
 
-<tbody id="statementBody"></tbody>
+<div class="form-grid">
 
-</table>
+<div class="field full">
 
+<label>
+اسم المنشأة
+</label>
+
+<input
+id="companyName"
+type="text"
+placeholder="اسم المحل أو الشركة">
+
+</div>
+
+<div class="field">
+
+<label>
+رقم الهاتف
+</label>
+
+<input
+id="companyPhone"
+type="text"
+placeholder="رقم الهاتف">
+
+</div>
+
+<div class="field">
+
+<label>
+العنوان
+</label>
+
+<input
+id="companyAddress"
+type="text"
+placeholder="العنوان">
+
+</div>
+
+</div>
+
+<div class="form-actions">
+
+<button
+class="btn btn-primary"
+type="button"
+onclick="saveCompanySettings()">
+حفظ بيانات المنشأة
+</button>
+
+</div>
+
+</div>
+
+<div class="section-card">
+
+<div class="section-head">
+
+<h3>
+الحساب
+</h3>
+
+</div>
+
+<div class="setting-row">
+
+<div class="setting-info">
+
+<div class="setting-title">
+الحساب الحالي
+</div>
+
+<div
+class="setting-desc"
+id="settingsEmail">
+—
+</div>
+
+</div>
+
+</div>
+
+<div class="form-actions">
+
+<button
+class="btn btn-danger"
+type="button"
+onclick="logoutApp()">
+تسجيل الخروج
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<section
+class="page"
+id="printPage">
+
+<div
+id="printInvoiceArea">
 </div>
 
 </section>
 
 </main>
 
+</div>
 
-<div id="modal" class="modal">
+<nav class="bottom-nav no-print">
 
-<div class="box">
+<div class="nav-inner">
 
-<h3 id="modalTitle"></h3>
+<button
+class="nav-btn active"
+data-page="home"
+onclick="showPage('home')">
 
-<div id="modalContent"></div>
+<span class="nav-icon">⌂</span>
+
+<span>
+الرئيسية
+</span>
+
+</button>
+
+<button
+class="nav-btn"
+data-page="customers"
+onclick="showPage('customers')">
+
+<span class="nav-icon">👥</span>
+
+<span>
+العملاء
+</span>
+
+</button>
+
+<button
+class="nav-btn"
+data-page="sales"
+onclick="showPage('sales')">
+
+<span class="nav-icon">🧾</span>
+
+<span>
+الفواتير
+</span>
+
+</button>
+
+<button
+class="nav-btn"
+data-page="receipts"
+onclick="showPage('receipts')">
+
+<span class="nav-icon">💵</span>
+
+<span>
+المقبوضات
+</span>
+
+</button>
+
+<button
+class="nav-btn"
+data-page="settings"
+onclick="showPage('settings')">
+
+<span class="nav-icon">⚙</span>
+
+<span>
+الإعدادات
+</span>
+
+</button>
 
 </div>
 
+</nav>
+
+<div
+class="modal"
+id="customerModal">
+
+<div class="modal-box">
+
+<div class="modal-head">
+
+<h2 id="customerModalTitle">
+إضافة عميل
+</h2>
+
+<button
+class="close"
+type="button"
+onclick="closeModal('customerModal')">
+×
+</button>
+
 </div>
 
+<div class="form-grid">
 
-<script>
- const KEY='sales_app_v1';
-
-let cloudLoaded=false;
-
-let db=JSON.parse(
-localStorage.getItem(KEY)||'null'
-)||{
-customers:[],
-sales:[],
-receipts:[],
-returns:[],
-seq:{
-c:1,
-s:1001,
-r:1,
-rt:1
-}
-};
-
-
-function normalizeDb(data){
-
-data=data||{};
-
-if(!Array.isArray(data.customers))
-data.customers=[];
-
-if(!Array.isArray(data.sales))
-data.sales=[];
-
-if(!Array.isArray(data.receipts))
-data.receipts=[];
-
-if(!Array.isArray(data.returns))
-data.returns=[];
-
-if(!data.seq)
-data.seq={};
-
-if(!data.seq.c)
-data.seq.c=1;
-
-if(!data.seq.s)
-data.seq.s=1001;
-
-if(!data.seq.r)
-data.seq.r=1;
-
-if(!data.seq.rt)
-data.seq.rt=1;
-
-
-data.customers.forEach(c=>{
-
-if(c.commissionPercent===undefined)
-c.commissionPercent=0;
-
-});
-
-
-data.sales.forEach(x=>{
-
-if(x.discount===undefined)
-x.discount=0;
-
-if(x.notes===undefined)
-x.notes='';
-
-if(x.total===undefined)
-x.total=0;
-
-if(x.no===undefined)
-x.no='';
-
-});
-
-
-data.receipts.forEach(x=>{
-
-if(x.no===undefined)
-x.no='';
-
-if(x.invoice===undefined)
-x.invoice='';
-
-});
-
-
-data.returns.forEach(x=>{
-
-if(x.no===undefined)
-x.no='';
-
-if(x.invoice===undefined)
-x.invoice='';
-
-if(x.notes===undefined)
-x.notes='';
-
-});
-
-
-return data;
-
-}
-
-
-db=normalizeDb(db);
-
-
-function save(){
-
-localStorage.setItem(
-KEY,
-JSON.stringify(db)
-);
-
-render();
-
-
-if(
-cloudLoaded &&
-window.AndroidFirebase &&
-AndroidFirebase.getUserUid &&
-AndroidFirebase.getUserUid()
-){
-
-AndroidFirebase.saveData(
-JSON.stringify(db)
-);
-
-}
-
-}
-
-
-window.loadCloudData=function(data){
-
-try{
-
-if(data){
-
-const cloud=JSON.parse(data);
-
-if(cloud && typeof cloud==='object'){
-
-db=normalizeDb(cloud);
-
-localStorage.setItem(
-KEY,
-JSON.stringify(db)
-);
-
-render();
-
-}
-
-}
-
-}catch(e){
-
-console.log(
-"Cloud data error",
-e
-);
-
-}finally{
-
-cloudLoaded=true;
-
-}
-
-};
-
-
-const pages=[
-
-['home','🏠 الرئيسية'],
-
-['customers','👥 الزبائن'],
-
-['sales','🧾 الفواتير'],
-
-['receipts','💰 سندات القبض'],
-
-['returns','↩️ المرتجعات'],
-
-['statement','📒 كشف الحساب']
-
-];
-
-
-document.getElementById(
-'nav'
-).innerHTML=
-
-pages.map((p,i)=>
-
-`<button
-onclick="showPage('${p[0]}',this)"
-class="${i===0?'active':''}">
-${p[1]}
-</button>`
-
-).join('');
-
-
-function showPage(id,el){
-
-document.querySelectorAll(
-'.page'
-)
-.forEach(x=>
-x.classList.remove('active')
-);
-
-document.getElementById(id)
-.classList.add('active');
-
-
-document.querySelectorAll(
-'nav button'
-)
-.forEach(x=>
-x.classList.remove('active')
-);
-
-el.classList.add('active');
-
-render();
-
-}
-
-
-function money(n){
-
-return Number(n||0).toLocaleString(
-'en-US',
-{
-minimumFractionDigits:2,
-maximumFractionDigits:2
-}
-);
-
-}
-
-
-function esc(s){
-
-return String(s??'').replace(
-/[&<>"']/g,
-m=>({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#39;'
-}[m])
-);
-
-}
-
-
-function today(){
-
-return new Date()
-.toISOString()
-.slice(0,10);
-
-}
-
-
-function customerName(id){
-
-return db.customers.find(
-c=>c.id==id
-)?.name || '—';
-
-}
-
-
-function customerCommission(id){
-
-const c=db.customers.find(
-x=>x.id==id
-);
-
-return Number(
-c?.commissionPercent || 0
-);
-
-}
-
-
-function saleNet(x){
-
-return Math.max(
-0,
-Number(x.total||0)-
-Number(x.discount||0)
-);
-
-
-}
-
-
-function totals(){
-
-const grossSales=
-db.sales.reduce(
-(a,x)=>
-a+Number(x.total||0),
-0
-);
-
-const discounts=
-db.sales.reduce(
-(a,x)=>
-a+Number(x.discount||0),
-0
-);
-
-const returns=
-db.returns.reduce(
-(a,x)=>
-a+Number(x.amount||0),
-0
-);
-
-const sales=
-grossSales-
-discounts-
-returns;
-
-const receipts=
-db.receipts.reduce(
-(a,x)=>
-a+Number(x.amount||0),
-0
-);
-
-const commission=
-db.receipts.reduce(
-(a,x)=>
-a+
-(
-Number(x.amount||0)*
-customerCommission(x.customerId)/
-100
-),
-0
-);
-
-const due=
-sales-receipts;
-
-return{
-sales,
-discounts,
-returns,
-receipts,
-commission,
-due
-};
-
-}
-function render(){
-
-const t=totals();
-
-const values={
-dashSales:t.sales,
-dashReceipts:t.receipts,
-dashCommission:t.commission,
-dashDiscounts:t.discounts,
-dashReturns:t.returns,
-dashDue:t.due
-};
-
-for(
-const [id,val]
-of Object.entries(values)
-){
-
-const el=document.getElementById(id);
-
-if(el)
-el.textContent=money(val);
-
-}
-
-
-const q=(
-document.getElementById(
-'customerSearch'
-)?.value || ''
-).trim();
-
-
-const cb=
-document.getElementById(
-'customersBody'
-);
-
-
-if(cb){
-
-cb.innerHTML=
-
-db.customers
-
-.filter(c=>
-String(c.name||'').includes(q) ||
-String(c.phone||'').includes(q)
-)
-
-.map(c=>{
-
-const sales=
-db.sales
-.filter(x=>x.customerId===c.id)
-.reduce(
-(a,x)=>a+saleNet(x),
-0
-);
-
-const rec=
-db.receipts
-.filter(x=>x.customerId===c.id)
-.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
-const ret=
-db.returns
-.filter(x=>x.customerId===c.id)
-.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
-const commission=
-db.receipts
-.filter(x=>x.customerId===c.id)
-.reduce(
-(a,x)=>
-a+
-Number(x.amount||0)*
-Number(c.commissionPercent||0)/
-100,
-0
-);
-
-return `
-<tr>
-
-<td>${esc(c.code)}</td>
-
-<td>${esc(c.name)}</td>
-
-<td>${esc(c.phone)}</td>
-
-<td>${money(c.commissionPercent)}%</td>
-
-<td>${money(sales-ret)}</td>
-
-<td>${money(rec)}</td>
-
-<td>${money(sales-ret-rec)}</td>
-
-<td>${money(commission)}</td>
-
-<td>
-
-<button
-class="btn"
-onclick="openCustomer(${c.id})">
-تعديل
-</button>
-
-<button
-class="btn red"
-onclick="deleteCustomer(${c.id})">
-حذف
-</button>
-
-</td>
-
-</tr>
-`;
-
-}).join('')
-
-||
-
-`<tr>
-<td colspan="9" class="empty">
-لا توجد بيانات
-</td>
-</tr>`;
-
-}
-
-
-const sb=
-document.getElementById(
-'salesBody'
-);
-
-if(sb){
-
-sb.innerHTML=
-
-db.sales.map(x=>`
-
-<tr>
-
-<td>${esc(x.no||'—')}</td>
-
-<td>${esc(x.date||'')}</td>
-
-<td>${esc(customerName(x.customerId))}</td>
-
-<td>${money(x.total)}</td>
-
-<td>${money(x.discount)}</td>
-
-<td>${money(saleNet(x))}</td>
-
-<td>${esc(x.notes||'')}</td>
-
-<td>
-
-<button
-class="btn"
-onclick="openSale(${x.id})">
-تعديل
-</button>
-
-<button
-class="btn red"
-onclick="deleteSale(${x.id})">
-حذف
-</button>
-
-</td>
-
-</tr>
-
-`).join('')
-
-||
-
-`<tr>
-<td colspan="8" class="empty">
-لا توجد فواتير
-</td>
-</tr>`;
-
-}
-
-
-const rb=
-document.getElementById(
-'receiptsBody'
-);
-
-if(rb){
-
-rb.innerHTML=
-
-db.receipts.map(x=>`
-
-<tr>
-
-<td>${esc(x.no||'—')}</td>
-
-<td>${esc(x.date||'')}</td>
-
-<td>${esc(customerName(x.customerId))}</td>
-
-<td>${money(x.amount)}</td>
-
-<td>${esc(x.method||'')}</td>
-
-<td>${esc(x.invoice||'—')}</td>
-
-<td>
-
-<button
-class="btn"
-onclick="openReceipt(${x.id})">
-تعديل
-</button>
-
-<button
-class="btn red"
-onclick="deleteReceipt(${x.id})">
-حذف
-</button>
-
-</td>
-
-</tr>
-
-`).join('')
-
-||
-
-`<tr>
-<td colspan="7" class="empty">
-لا توجد سندات
-</td>
-</tr>`;
-
-}
-
-
-const rt=
-document.getElementById(
-'returnsBody'
-);
-
-if(rt){
-
-rt.innerHTML=
-
-db.returns.map(x=>`
-
-<tr>
-
-<td>${esc(x.no||'—')}</td>
-
-<td>${esc(x.date||'')}</td>
-
-<td>${esc(customerName(x.customerId))}</td>
-
-<td>${esc(x.invoice||'—')}</td>
-
-<td>${money(x.amount)}</td>
-
-<td>${esc(x.notes||'')}</td>
-
-<td>
-
-<button
-class="btn"
-onclick="openReturn(${x.id})">
-تعديل
-</button>
-
-<button
-class="btn red"
-onclick="deleteReturn(${x.id})">
-حذف
-</button>
-
-</td>
-
-</tr>
-
-`).join('')
-
-||
-
-`<tr>
-<td colspan="7" class="empty">
-لا توجد مرتجعات
-</td>
-</tr>`;
-
-}
-
-
-const sc=
-document.getElementById(
-'statementCustomer'
-);
-
-if(sc){
-
-const old=sc.value;
-
-sc.innerHTML=
-'<option value="">اختر زبونًا</option>'+
-db.customers.map(c=>
-`<option value="${c.id}">
-${esc(c.name)}
-</option>`
-).join('');
-
-sc.value=old;
-
-}
-
-renderStatement();
-
-}
-
-
-function openModal(title,html){
-
-document.getElementById(
-'modalTitle'
-).textContent=title;
-
-document.getElementById(
-'modalContent'
-).innerHTML=html;
-
-document.getElementById(
-'modal'
-).classList.add('show');
-
-}
-
-
-function closeModal(){
-
-document.getElementById(
-'modal'
-).classList.remove('show');
-
-}
-
-
-document.getElementById('modal')
-.addEventListener(
-'click',
-e=>{
-if(e.target.id==='modal')
-closeModal();
-}
-);
-
-
-function customerOptions(selected=''){
-
-return db.customers.map(c=>
-
-`<option
-value="${c.id}"
-${String(c.id)===String(selected)?'selected':''}>
-${esc(c.name)}
-</option>`
-
-).join('');
-
-}
-
-
-function openCustomer(id=null){
-
-const c=
-id
-?db.customers.find(x=>x.id==id)
-:null;
-
-openModal(
-c?'تعديل زبون':'إضافة زبون',
-
-`
-
-<div class="grid">
+<div class="field full">
 
 <label>
-اسم الزبون
-<input
-id="fName"
-value="${esc(c?.name||'')}">
+اسم العميل
 </label>
 
-<label>
-الهاتف
 <input
-id="fPhone"
-value="${esc(c?.phone||'')}">
+id="customerName"
+type="text"
+placeholder="اسم العميل">
+
+</div>
+
+<div class="field">
+
+<label>
+رقم الهاتف
 </label>
+
+<input
+id="customerPhone"
+type="text"
+placeholder="رقم الهاتف">
+
+</div>
+
+<div class="field">
 
 <label>
 نسبة العمولة %
-<input
-id="fCommission"
-type="number"
-min="0"
-max="100"
-step="0.01"
-value="${Number(c?.commissionPercent||0)}">
 </label>
 
-<div class="actions full">
+<input
+id="customerCommission"
+type="number"
+min="0"
+step="0.01"
+value="0"
+placeholder="0">
+
+</div>
+
+</div>
+
+<div class="form-actions">
 
 <button
-class="btn"
-onclick="saveCustomer(${id||'null'})">
-حفظ
+class="btn btn-primary"
+type="button"
+onclick="saveCustomer()">
+حفظ العميل
 </button>
 
 <button
-class="btn red"
-onclick="closeModal()">
+class="btn btn-light"
+type="button"
+onclick="closeModal('customerModal')">
 إلغاء
 </button>
 
 </div>
 
 </div>
-`
-);
 
-}
+</div>
 
+<div
+class="modal"
+id="saleModal">
 
-function saveCustomer(id){
+<div class="modal-box">
 
-const name=
-document.getElementById(
-'fName'
-).value.trim();
+<div class="modal-head">
 
-if(!name){
+<h2 id="saleModalTitle">
+فاتورة جديدة
+</h2>
 
-alert('اكتب اسم الزبون');
-return;
+<button
+class="close"
+type="button"
+onclick="closeModal('saleModal')">
+×
+</button>
 
-}
+</div>
 
-const phone=
-document.getElementById(
-'fPhone'
-).value.trim();
+<div class="form-grid">
 
-const commission=
-Number(
-document.getElementById(
-'fCommission'
-).value
-)||0;
-
-if(commission<0 || commission>100){
-
-alert(
-'نسبة العمولة يجب أن تكون بين 0 و100'
-);
-
-return;
-
-}
-
-if(id){
-
-const c=
-db.customers.find(
-x=>x.id==id
-);
-
-c.name=name;
-c.phone=phone;
-c.commissionPercent=commission;
-
-}else{
-
-db.customers.push({
-
-id:Date.now(),
-
-code:
-'C'+
-String(db.seq.c++)
-.padStart(4,'0'),
-
-name,
-phone,
-commissionPercent:commission
-
-});
-
-}
-
-save();
-closeModal();
-
-}
-
-
-function deleteCustomer(id){
-
-const hasSales=
-db.sales.some(
-x=>x.customerId==id
-);
-
-const hasReceipts=
-db.receipts.some(
-x=>x.customerId==id
-);
-
-const hasReturns=
-db.returns.some(
-x=>x.customerId==id
-);
-
-if(
-hasSales||
-hasReceipts||
-hasReturns
-){
-
-alert(
-'لا يمكن حذف الزبون لأنه مرتبط بفواتير أو سندات أو مرتجعات.'
-);
-
-return;
-
-}
-
-if(!confirm(
-'هل تريد حذف هذا الزبون؟'
-))
-return;
-
-db.customers=
-db.customers.filter(
-x=>x.id!=id
-);
-
-save();
-
-}
-
-
-function openSale(id=null){
-
-if(!db.customers.length){
-
-alert('أضف زبونًا أولاً');
-return;
-
-}
-
-const x=
-id
-?db.sales.find(v=>v.id==id)
-:null;
-
-openModal(
-x?'تعديل الفاتورة':'فاتورة جديدة',
-
-`
-
-<div class="grid">
+<div class="field">
 
 <label>
-رقم الفاتورة (اختياري)
-<input
-id="sNo"
-value="${esc(x?.no||'')}">
+رقم الفاتورة
 </label>
+
+<input
+id="saleNo"
+type="text"
+placeholder="اختياري">
+
+</div>
+
+<div class="field">
 
 <label>
 التاريخ
-<input
-id="sDate"
-type="date"
-value="${esc(x?.date||today())}">
 </label>
 
+<input
+id="saleDate"
+type="date">
+
+</div>
+
+<div class="field full">
+
 <label>
-الزبون
-<select id="sCust">
-${customerOptions(x?.customerId||'')}
+العميل
+</label>
+
+<select
+id="saleCustomer">
 </select>
-</label>
+
+</div>
+
+<div class="field">
 
 <label>
-الإجمالي
+إجمالي الفاتورة
+</label>
+
 <input
-id="sTotal"
+id="saleTotal"
 type="number"
 min="0"
 step="0.01"
-value="${Number(x?.total||0)}">
-</label>
+value="0">
+
+</div>
+
+<div class="field">
 
 <label>
 الخصم
+</label>
+
 <input
-id="sDiscount"
+id="saleDiscount"
 type="number"
 min="0"
 step="0.01"
-value="${Number(x?.discount||0)}">
+value="0">
+
+</div>
+
+<div class="field full">
+
+<label>
+ملاحظات
 </label>
 
-<label class="full">
-الملاحظات
-<textarea id="sNotes">${esc(x?.notes||'')}</textarea>
-</label>
+<textarea
+id="saleNotes"
+placeholder="ملاحظات اختيارية">
+</textarea>
 
-<div class="actions full">
+</div>
+
+</div>
+
+<div class="form-actions">
 
 <button
-class="btn"
-onclick="saveSale(${id||'null'})">
+class="btn btn-primary"
+type="button"
+onclick="saveSale()">
 حفظ الفاتورة
 </button>
 
 <button
-class="btn red"
-onclick="closeModal()">
+class="btn btn-light"
+type="button"
+onclick="closeModal('saleModal')">
 إلغاء
 </button>
 
 </div>
 
 </div>
-`
-);
 
-}
+</div>
 
+<div
+class="modal"
+id="receiptModal">
 
-function saveSale(id){
+<div class="modal-box">
 
-const no=
-document.getElementById(
-'sNo'
-).value.trim();
+<div class="modal-head">
 
-const date=
-document.getElementById(
-'sDate'
-).value;
+<h2 id="receiptModalTitle">
+سند قبض جديد
+</h2>
 
-const customerId=
-Number(
-document.getElementById(
-'sCust'
-).value
-);
+<button
+class="close"
+type="button"
+onclick="closeModal('receiptModal')">
+×
+</button>
 
-const total=
-Number(
-document.getElementById(
-'sTotal'
-).value
-)||0;
+</div>
 
-const discount=
-Number(
-document.getElementById(
-'sDiscount'
-).value
-)||0;
+<div class="form-grid">
 
-const notes=
-document.getElementById(
-'sNotes'
-).value.trim();
+<div class="field">
 
-if(!customerId){
+<label>
+رقم السند
+</label>
 
-alert('اختر الزبون');
-return;
+<input
+id="receiptNo"
+type="text"
+placeholder="اختياري">
 
-}
+</div>
 
-if(total<=0){
+<div class="field">
 
-alert('اكتب إجمالي صحيح');
-return;
+<label>
+التاريخ
+</label>
 
-}
+<input
+id="receiptDate"
+type="date">
 
-if(discount<0||discount>total){
+</div>
 
-alert('تحقق من الخصم');
-return;
+<div class="field full">
 
-}
+<label>
+العميل
+</label>
 
-const obj={
-no,
-date,
-customerId,
-total,
-discount,
-notes
+<select
+id="receiptCustomer">
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+المبلغ المقبوض
+</label>
+
+<input
+id="receiptAmount"
+type="number"
+min="0"
+step="0.01"
+value="0">
+
+</div>
+
+<div class="field">
+
+<label>
+طريقة الدفع
+</label>
+
+<select
+id="receiptMethod">
+
+<option value="نقدي">
+نقدي
+</option>
+
+<option value="تحويل">
+تحويل
+</option>
+
+<option value="شبكة">
+شبكة
+</option>
+
+<option value="أخرى">
+أخرى
+</option>
+
+</select>
+
+</div>
+
+<div class="field full">
+
+<label>
+رقم الفاتورة المرتبطة
+</label>
+
+<input
+id="receiptInvoice"
+type="text"
+placeholder="اختياري">
+
+</div>
+
+</div>
+
+<div class="form-actions">
+
+<button
+class="btn btn-success"
+type="button"
+onclick="saveReceipt()">
+حفظ السند
+</button>
+
+<button
+class="btn btn-light"
+type="button"
+onclick="closeModal('receiptModal')">
+إلغاء
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div
+class="modal"
+id="returnModal">
+
+<div class="modal-box">
+
+<div class="modal-head">
+
+<h2 id="returnModalTitle">
+إضافة مرتجع
+</h2>
+
+<button
+class="close"
+type="button"
+onclick="closeModal('returnModal')">
+×
+</button>
+
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>
+رقم المرتجع
+</label>
+
+<input
+id="returnNo"
+type="text"
+placeholder="اختياري">
+
+</div>
+
+<div class="field">
+
+<label>
+التاريخ
+</label>
+
+<input
+id="returnDate"
+type="date">
+
+</div>
+
+<div class="field full">
+
+<label>
+العميل
+</label>
+
+<select
+id="returnCustomer">
+</select>
+
+</div>
+
+<div class="field full">
+
+<label>
+رقم الفاتورة
+</label>
+
+<input
+id="returnInvoice"
+type="text"
+placeholder="اختياري">
+
+</div>
+
+<div class="field full">
+
+<label>
+مبلغ المرتجع
+</label>
+
+<input
+id="returnAmount"
+type="number"
+min="0"
+step="0.01"
+value="0">
+
+</div>
+
+<div class="field full">
+
+<label>
+ملاحظات
+</label>
+
+<textarea
+id="returnNotes"
+placeholder="ملاحظات اختيارية">
+</textarea>
+
+</div>
+
+</div>
+
+<div class="form-actions">
+
+<button
+class="btn btn-danger"
+type="button"
+onclick="saveReturn()">
+حفظ المرتجع
+</button>
+
+<button
+class="btn btn-light"
+type="button"
+onclick="closeModal('returnModal')">
+إلغاء
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div
+class="toast"
+id="toast">
+</div>
+
+<script>
+
+const KEY = 'sales_app_v2';
+
+let cloudLoaded = false;
+
+let editingCustomerId = null;
+let editingSaleId = null;
+let editingReceiptId = null;
+let editingReturnId = null;
+
+let db = {
+  customers: [],
+  sales: [],
+  receipts: [],
+  returns: [],
+  seq: {
+    c: 1,
+    s: 1001,
+    r: 1,
+    rt: 1
+  }
 };
 
-if(id){
+let settings = {
+  language: 'ar',
+  dark: false,
+  companyName: '',
+  companyPhone: '',
+  companyAddress: ''
+};
 
-const old=
-db.sales.find(
-x=>x.id==id
-);
+function loadLocalSettings(){
 
-Object.assign(old,obj);
+  try{
 
-}else{
+    const raw =
+      localStorage.getItem(
+        'sales_app_settings_v2'
+      );
 
-db.sales.push({
-id:Date.now(),
-...obj
-});
+    if(raw){
+
+      const parsed =
+        JSON.parse(raw);
+
+      settings = {
+        ...settings,
+        ...parsed
+      };
+
+    }
+
+  }catch(e){
+
+    console.log(e);
+
+  }
 
 }
 
-save();
-closeModal();
+function saveLocalSettings(){
 
+  try{
+
+    localStorage.setItem(
+      'sales_app_settings_v2',
+      JSON.stringify(settings)
+    );
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+}
+
+function normalizeDb(data){
+
+  if(!data || typeof data !== 'object'){
+    return db;
+  }
+
+  data.customers =
+    Array.isArray(data.customers)
+      ? data.customers
+      : [];
+
+  data.sales =
+    Array.isArray(data.sales)
+      ? data.sales
+      : [];
+
+  data.receipts =
+    Array.isArray(data.receipts)
+      ? data.receipts
+      : [];
+
+  data.returns =
+    Array.isArray(data.returns)
+      ? data.returns
+      : [];
+
+  data.seq =
+    data.seq || {};
+
+  data.seq.c =
+    Number(data.seq.c || 1);
+
+  data.seq.s =
+    Number(data.seq.s || 1001);
+
+  data.seq.r =
+    Number(data.seq.r || 1);
+
+  data.seq.rt =
+    Number(data.seq.rt || 1);
+
+  data.customers.forEach(c=>{
+
+    c.commissionPercent =
+      Number(c.commissionPercent || 0);
+
+  });
+
+  data.sales.forEach(s=>{
+
+    s.discount =
+      Number(s.discount || 0);
+
+    s.total =
+      Number(s.total || 0);
+
+    s.notes =
+      s.notes || '';
+
+    s.no =
+      s.no || '';
+
+  });
+
+  data.receipts.forEach(r=>{
+
+    r.amount =
+      Number(r.amount || 0);
+
+    r.no =
+      r.no || '';
+
+    r.invoice =
+      r.invoice || '';
+
+    r.method =
+      r.method || 'نقدي';
+
+  });
+
+  data.returns.forEach(r=>{
+
+    r.amount =
+      Number(r.amount || 0);
+
+    r.no =
+      r.no || '';
+
+    r.invoice =
+      r.invoice || '';
+
+    r.notes =
+      r.notes || '';
+
+  });
+
+  return data;
+}
+
+function loadLocal(){
+
+  try{
+
+    const raw =
+      localStorage.getItem(KEY);
+
+    if(raw){
+
+      db =
+        normalizeDb(
+          JSON.parse(raw)
+        );
+
+    }
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+}
+
+loadLocal();
+loadLocalSettings();
+ function save(){
+
+  try{
+
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(db)
+    );
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+  render();
+
+  if(
+    cloudLoaded &&
+    window.AndroidFirebase &&
+    AndroidFirebase.getUserUid &&
+    AndroidFirebase.getUserUid()
+  ){
+
+    try{
+
+      AndroidFirebase.saveData(
+        JSON.stringify(db)
+      );
+
+    }catch(e){
+
+      console.log(e);
+
+    }
+
+  }
+
+}
+
+function today(){
+
+  const d = new Date();
+
+  const y =
+    d.getFullYear();
+
+  const m =
+    String(d.getMonth()+1)
+      .padStart(2,'0');
+
+  const day =
+    String(d.getDate())
+      .padStart(2,'0');
+
+  return `${y}-${m}-${day}`;
+
+}
+
+function money(value){
+
+  const n =
+    Number(value || 0);
+
+  return n.toLocaleString(
+    'en-US',
+    {
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    }
+  );
+
+}
+
+function esc(value){
+
+  return String(
+    value == null ? '' : value
+  )
+  .replace(/&/g,'&amp;')
+  .replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;')
+  .replace(/'/g,'&#039;');
+
+}
+
+function customerName(id){
+
+  const c =
+    db.customers.find(
+      x => String(x.id) === String(id)
+    );
+
+  return c ? c.name : '—';
+
+}
+
+function customerCommission(id){
+
+  const c =
+    db.customers.find(
+      x => String(x.id) === String(id)
+    );
+
+  return c
+    ? Number(c.commissionPercent || 0)
+    : 0;
+
+}
+
+function saleNet(s){
+
+  return Math.max(
+    0,
+    Number(s.total || 0) -
+    Number(s.discount || 0)
+  );
+
+}
+
+function totals(){
+
+  const grossSales =
+    db.sales.reduce(
+      (sum,x)=>
+        sum + Number(x.total || 0),
+      0
+    );
+
+  const discounts =
+    db.sales.reduce(
+      (sum,x)=>
+        sum + Number(x.discount || 0),
+      0
+    );
+
+  const returned =
+    db.returns.reduce(
+      (sum,x)=>
+        sum + Number(x.amount || 0),
+      0
+    );
+
+  const receipts =
+    db.receipts.reduce(
+      (sum,x)=>
+        sum + Number(x.amount || 0),
+      0
+    );
+
+  const sales =
+    grossSales -
+    discounts -
+    returned;
+
+  const commission =
+    db.receipts.reduce(
+      (sum,x)=>
+        sum +
+        (
+          Number(x.amount || 0) *
+          customerCommission(x.customerId)
+          / 100
+        ),
+      0
+    );
+
+  const due =
+    sales -
+    receipts;
+
+  return {
+    grossSales,
+    discounts,
+    returned,
+    receipts,
+    sales,
+    commission,
+    due
+  };
+
+}
+
+function showToast(message){
+
+  const el =
+    document.getElementById('toast');
+
+  if(!el){
+    return;
+  }
+
+  el.textContent =
+    message;
+
+  el.classList.add('show');
+
+  clearTimeout(
+    window.__toastTimer
+  );
+
+  window.__toastTimer =
+    setTimeout(()=>{
+      el.classList.remove('show');
+    },2500);
+
+}
+
+function closeModal(id){
+
+  const el =
+    document.getElementById(id);
+
+  if(el){
+    el.classList.remove('show');
+  }
+
+}
+
+function openModal(id){
+
+  const el =
+    document.getElementById(id);
+
+  if(el){
+    el.classList.add('show');
+  }
+
+}
+
+function showPage(page){
+
+  document
+    .querySelectorAll('.page')
+    .forEach(el=>{
+      el.classList.remove('active');
+    });
+
+  const target =
+    document.getElementById(
+      'page-' + page
+    );
+
+  if(target){
+    target.classList.add('active');
+  }
+
+  document
+    .querySelectorAll('.nav-btn')
+    .forEach(btn=>{
+
+      btn.classList.toggle(
+        'active',
+        btn.dataset.page === page
+      );
+
+    });
+
+  if(page === 'home'){
+    renderHome();
+  }
+
+  if(page === 'customers'){
+    renderCustomers();
+  }
+
+  if(page === 'sales'){
+    renderSales();
+  }
+
+  if(page === 'receipts'){
+    renderReceipts();
+  }
+
+  if(page === 'returns'){
+    renderReturns();
+  }
+
+  if(page === 'statement'){
+    populateStatementCustomers();
+    renderStatement();
+  }
+
+  if(page === 'settings'){
+    renderSettings();
+  }
+
+  window.scrollTo({
+    top:0,
+    behavior:'smooth'
+  });
+
+}
+
+function populateCustomerSelects(){
+
+  const selects = [
+    'saleCustomer',
+    'receiptCustomer',
+    'returnCustomer'
+  ];
+
+  selects.forEach(id=>{
+
+    const select =
+      document.getElementById(id);
+
+    if(!select){
+      return;
+    }
+
+    const current =
+      select.value;
+
+    let html =
+      '<option value="">اختر العميل</option>';
+
+    db.customers.forEach(c=>{
+
+      html += `
+        <option value="${esc(c.id)}">
+          ${esc(c.name)}
+        </option>
+      `;
+
+    });
+
+    select.innerHTML =
+      html;
+
+    if(current){
+      select.value =
+        current;
+    }
+
+  });
+
+}
+
+function populateStatementCustomers(){
+
+  const select =
+    document.getElementById(
+      'statementCustomer'
+    );
+
+  if(!select){
+    return;
+  }
+
+  const current =
+    select.value;
+
+  let html =
+    '<option value="">اختر العميل</option>';
+
+  db.customers.forEach(c=>{
+
+    html += `
+      <option value="${esc(c.id)}">
+        ${esc(c.name)}
+      </option>
+    `;
+
+  });
+
+  select.innerHTML =
+    html;
+
+  if(current){
+    select.value =
+      current;
+  }
+
+}
+
+function renderHome(){
+
+  const t =
+    totals();
+
+  const salesEl =
+    document.getElementById(
+      'totalSalesText'
+    );
+
+  const receiptsEl =
+    document.getElementById(
+      'totalReceiptsText'
+    );
+
+  const commissionEl =
+    document.getElementById(
+      'commissionText'
+    );
+
+  const discountEl =
+    document.getElementById(
+      'discountText'
+    );
+
+  const returnsEl =
+    document.getElementById(
+      'returnsText'
+    );
+
+  const dueEl =
+    document.getElementById(
+      'dueText'
+    );
+
+  if(salesEl){
+    salesEl.textContent =
+      money(t.sales);
+  }
+
+  if(receiptsEl){
+    receiptsEl.textContent =
+      money(t.receipts);
+  }
+
+  if(commissionEl){
+    commissionEl.textContent =
+      money(t.commission);
+  }
+
+  if(discountEl){
+    discountEl.textContent =
+      money(t.discounts);
+  }
+
+  if(returnsEl){
+    returnsEl.textContent =
+      money(t.returned);
+  }
+
+  if(dueEl){
+    dueEl.textContent =
+      money(t.due);
+  }
+
+  const dateEl =
+    document.getElementById(
+      'summaryDate'
+    );
+
+  if(dateEl){
+    dateEl.textContent =
+      today();
+  }
+
+  const summary =
+    document.getElementById(
+      'homeSummary'
+    );
+
+  if(!summary){
+    return;
+  }
+
+  summary.innerHTML = `
+    <div class="form-grid">
+
+      <div>
+        <div class="stat-label">
+          عدد العملاء
+        </div>
+
+        <div class="stat-value">
+          ${db.customers.length}
+        </div>
+      </div>
+
+      <div>
+        <div class="stat-label">
+          عدد الفواتير
+        </div>
+
+        <div class="stat-value">
+          ${db.sales.length}
+        </div>
+      </div>
+
+      <div>
+        <div class="stat-label">
+          عدد سندات القبض
+        </div>
+
+        <div class="stat-value">
+          ${db.receipts.length}
+        </div>
+      </div>
+
+      <div>
+        <div class="stat-label">
+          عدد المرتجعات
+        </div>
+
+        <div class="stat-value">
+          ${db.returns.length}
+        </div>
+      </div>
+
+    </div>
+  `;
+
+}
+
+function renderCustomers(){
+
+  const container =
+    document.getElementById(
+      'customersTable'
+    );
+
+  if(!container){
+    return;
+  }
+
+  const search =
+    (
+      document.getElementById(
+        'customerSearch'
+      )?.value || ''
+    )
+    .trim()
+    .toLowerCase();
+
+  const list =
+    db.customers.filter(c=>
+      String(c.name || '')
+        .toLowerCase()
+        .includes(search) ||
+      String(c.phone || '')
+        .toLowerCase()
+        .includes(search)
+    );
+
+  if(!list.length){
+
+    container.innerHTML = `
+      <div class="empty">
+
+        <div class="empty-icon">
+          👥
+        </div>
+
+        لا يوجد عملاء حتى الآن.
+
+      </div>
+    `;
+
+    return;
+
+  }
+
+  let html = `
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>العميل</th>
+            <th>الهاتف</th>
+            <th>المبيعات</th>
+            <th>المقبوضات</th>
+            <th>المرتجعات</th>
+            <th>العمولة</th>
+            <th>المتبقي</th>
+            <th>إجراءات</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+  `;
+
+  list.forEach(c=>{
+
+    const sales =
+      db.sales
+        .filter(x=>
+          String(x.customerId) ===
+          String(c.id)
+        )
+        .reduce(
+          (s,x)=>
+            s + saleNet(x),
+          0
+        );
+
+    const receipts =
+      db.receipts
+        .filter(x=>
+          String(x.customerId) ===
+          String(c.id)
+        )
+        .reduce(
+          (s,x)=>
+            s + Number(x.amount || 0),
+          0
+        );
+
+    const returned =
+      db.returns
+        .filter(x=>
+          String(x.customerId) ===
+          String(c.id)
+        )
+        .reduce(
+          (s,x)=>
+            s + Number(x.amount || 0),
+          0
+        );
+
+    const commission =
+      db.receipts
+        .filter(x=>
+          String(x.customerId) ===
+          String(c.id)
+        )
+        .reduce(
+          (s,x)=>
+            s +
+            (
+              Number(x.amount || 0) *
+              Number(c.commissionPercent || 0)
+              / 100
+            ),
+          0
+        );
+
+    const due =
+      sales -
+      returned -
+      receipts;
+
+    html += `
+      <tr>
+
+        <td>
+          <strong>
+            ${esc(c.name)}
+          </strong>
+
+          <div style="color:#718096;font-size:10px;margin-top:3px">
+            عمولة ${money(c.commissionPercent || 0)}%
+          </div>
+        </td>
+
+        <td>
+          ${esc(c.phone || '—')}
+        </td>
+
+        <td>
+          ${money(sales)}
+        </td>
+
+        <td>
+          ${money(receipts)}
+        </td>
+
+        <td>
+          ${money(returned)}
+        </td>
+
+        <td>
+          ${money(commission)}
+        </td>
+
+        <td>
+          <span class="${
+            due > 0
+              ? 'badge badge-warning'
+              : 'badge badge-success'
+          }">
+            ${money(due)}
+          </span>
+        </td>
+
+        <td>
+
+          <div class="actions">
+
+            <button
+              class="btn btn-small btn-outline"
+              onclick="editCustomer('${esc(c.id)}')">
+              تعديل
+            </button>
+
+            <button
+              class="btn btn-small btn-danger"
+              onclick="deleteCustomer('${esc(c.id)}')">
+              حذف
+            </button>
+
+          </div>
+
+        </td>
+
+      </tr>
+    `;
+
+  });
+
+  html += `
+        </tbody>
+
+      </table>
+
+    </div>
+  `;
+
+  container.innerHTML =
+    html;
+
+}
+
+function openCustomerForm(id=null){
+
+  editingCustomerId =
+    id;
+
+  const title =
+    document.getElementById(
+      'customerModalTitle'
+    );
+
+  if(id){
+
+    const c =
+      db.customers.find(
+        x =>
+          String(x.id) ===
+          String(id)
+      );
+
+    if(!c){
+      return;
+    }
+
+    if(title){
+      title.textContent =
+        'تعديل العميل';
+    }
+
+    document.getElementById(
+      'customerName'
+    ).value =
+      c.name || '';
+
+    document.getElementById(
+      'customerPhone'
+    ).value =
+      c.phone || '';
+
+    document.getElementById(
+      'customerCommission'
+    ).value =
+      Number(
+        c.commissionPercent || 0
+      );
+
+  }else{
+
+    if(title){
+      title.textContent =
+        'إضافة عميل';
+    }
+
+    document.getElementById(
+      'customerName'
+    ).value =
+      '';
+
+    document.getElementById(
+      'customerPhone'
+    ).value =
+      '';
+
+    document.getElementById(
+      'customerCommission'
+    ).value =
+      '0';
+
+  }
+
+  openModal(
+    'customerModal'
+  );
+
+}
+
+function saveCustomer(){
+
+  const name =
+    document.getElementById(
+      'customerName'
+    ).value.trim();
+
+  const phone =
+    document.getElementById(
+      'customerPhone'
+    ).value.trim();
+
+  const commission =
+    Number(
+      document.getElementById(
+        'customerCommission'
+      ).value || 0
+    );
+
+  if(!name){
+
+    showToast(
+      'اكتب اسم العميل أولاً'
+    );
+
+    return;
+
+  }
+
+  if(editingCustomerId){
+
+    const c =
+      db.customers.find(
+        x =>
+          String(x.id) ===
+          String(editingCustomerId)
+      );
+
+    if(c){
+
+      c.name =
+        name;
+
+      c.phone =
+        phone;
+
+      c.commissionPercent =
+        commission;
+
+    }
+
+    showToast(
+      'تم تعديل العميل'
+    );
+
+  }else{
+
+    db.customers.push({
+
+      id:
+        db.seq.c++,
+
+      name:
+        name,
+
+      phone:
+        phone,
+
+      commissionPercent:
+        commission
+
+    });
+
+    showToast(
+      'تمت إضافة العميل'
+    );
+
+  }
+
+  closeModal(
+    'customerModal'
+  );
+
+  editingCustomerId =
+    null;
+
+  save();
+
+}
+
+function editCustomer(id){
+
+  openCustomerForm(id);
+
+}
+
+function deleteCustomer(id){
+
+  const hasSales =
+    db.sales.some(
+      x =>
+        String(x.customerId) ===
+        String(id)
+    );
+
+  const hasReceipts =
+    db.receipts.some(
+      x =>
+        String(x.customerId) ===
+        String(id)
+    );
+
+  const hasReturns =
+    db.returns.some(
+      x =>
+        String(x.customerId) ===
+        String(id)
+    );
+
+  if(
+    hasSales ||
+    hasReceipts ||
+    hasReturns
+  ){
+
+    showToast(
+      'لا يمكن حذف عميل لديه حركات مالية'
+    );
+
+    return;
+
+  }
+
+  if(
+    !confirm(
+      'هل تريد حذف هذا العميل؟'
+    )
+  ){
+    return;
+  }
+
+  db.customers =
+    db.customers.filter(
+      x =>
+        String(x.id) !==
+        String(id)
+    );
+
+  save();
+
+  showToast(
+    'تم حذف العميل'
+  );
+
+  }
+ /* =========================
+   PART 3
+   الفواتير + سندات القبض + المرتجعات + كشف الحساب
+========================= */
+
+function openSaleForm(id=null){
+  editingSaleId = id;
+
+  const customerSelect = document.getElementById('saleCustomer');
+  const invoiceNo = document.getElementById('saleInvoiceNo');
+  const date = document.getElementById('saleDate');
+  const total = document.getElementById('saleTotal');
+  const discount = document.getElementById('saleDiscount');
+  const notes = document.getElementById('saleNotes');
+
+  populateCustomerSelects();
+
+  if(id){
+    const sale = db.sales.find(x => x.id === id);
+
+    if(!sale){
+      showToast('الفاتورة غير موجودة');
+      return;
+    }
+
+    customerSelect.value = sale.customerId || '';
+    invoiceNo.value = sale.no || '';
+    date.value = sale.date || today();
+    total.value = sale.total || 0;
+    discount.value = sale.discount || 0;
+    notes.value = sale.notes || '';
+
+    document.getElementById('saleModalTitle').textContent =
+      'تعديل الفاتورة';
+  }else{
+    customerSelect.value = '';
+    invoiceNo.value = '';
+    date.value = today();
+    total.value = '';
+    discount.value = '0';
+    notes.value = '';
+
+    document.getElementById('saleModalTitle').textContent =
+      'فاتورة جديدة';
+  }
+
+  openModal('saleModal');
+}
+
+
+function saveSale(){
+
+  const customerId =
+    document.getElementById('saleCustomer').value;
+
+  const invoiceNo =
+    document.getElementById('saleInvoiceNo').value.trim();
+
+  const date =
+    document.getElementById('saleDate').value || today();
+
+  const total =
+    Number(document.getElementById('saleTotal').value || 0);
+
+  const discount =
+    Number(document.getElementById('saleDiscount').value || 0);
+
+  const notes =
+    document.getElementById('saleNotes').value.trim();
+
+  if(!customerId){
+    showToast('اختر العميل أولاً');
+    return;
+  }
+
+  if(total <= 0){
+    showToast('أدخل إجمالي الفاتورة');
+    return;
+  }
+
+  if(discount < 0){
+    showToast('الخصم غير صحيح');
+    return;
+  }
+
+  if(discount > total){
+    showToast('الخصم أكبر من قيمة الفاتورة');
+    return;
+  }
+
+  if(editingSaleId){
+
+    const sale =
+      db.sales.find(x => x.id === editingSaleId);
+
+    if(sale){
+
+      sale.customerId = customerId;
+      sale.no =
+        invoiceNo || String(sale.no || db.seq.s++);
+
+      sale.date = date;
+      sale.total = total;
+      sale.discount = discount;
+      sale.notes = notes;
+
+    }
+
+  }else{
+
+    db.sales.push({
+      id: 's_' + Date.now(),
+      customerId: customerId,
+      no: invoiceNo || String(db.seq.s++),
+      date: date,
+      total: total,
+      discount: discount,
+      notes: notes
+    });
+
+  }
+
+  editingSaleId = null;
+
+  save();
+
+  closeModal('saleModal');
+
+  showToast('تم حفظ الفاتورة');
+
+  showPage('sales');
+}
+
+
+function editSale(id){
+  openSaleForm(id);
 }
 
 
 function deleteSale(id){
 
-if(!confirm(
-'هل تريد حذف هذه الفاتورة؟'
-))
-return;
+  const sale =
+    db.sales.find(x => x.id === id);
 
-db.sales=
-db.sales.filter(
-x=>x.id!=id
-);
+  if(!sale) return;
 
-save();
+  if(!confirm(
+    'هل تريد حذف هذه الفاتورة؟'
+  )){
+    return;
+  }
 
+  db.sales =
+    db.sales.filter(x => x.id !== id);
+
+  save();
+
+  showToast('تم حذف الفاتورة');
 }
 
 
-function openReceipt(id=null){
+function printInvoice(id){
 
-if(!db.customers.length){
+  const sale =
+    db.sales.find(x => x.id === id);
 
-alert('أضف زبونًا أولاً');
-return;
+  if(!sale){
+    showToast('الفاتورة غير موجودة');
+    return;
+  }
 
+  const customer =
+    db.customers.find(x => x.id === sale.customerId);
+
+  const customerNameText =
+    customer ? customer.name : 'بدون اسم';
+
+  const gross =
+    Number(sale.total || 0);
+
+  const discount =
+    Number(sale.discount || 0);
+
+  const net =
+    gross - discount;
+
+  const companyName =
+    settings.companyName || 'نظام المبيعات والزبائن';
+
+  const companyPhone =
+    settings.companyPhone || '';
+
+  const companyAddress =
+    settings.companyAddress || '';
+
+  document.getElementById('printInvoiceArea').innerHTML = `
+
+    <div class="print-invoice">
+
+      <div class="print-header">
+
+        <h1>${esc(companyName)}</h1>
+
+        ${
+          companyPhone
+          ? `<div>${esc(companyPhone)}</div>`
+          : ''
+        }
+
+        ${
+          companyAddress
+          ? `<div>${esc(companyAddress)}</div>`
+          : ''
+        }
+
+      </div>
+
+      <hr>
+
+      <h2>فاتورة مبيعات</h2>
+
+      <div class="print-info">
+
+        <div>
+          <strong>رقم الفاتورة:</strong>
+          ${esc(sale.no || '')}
+        </div>
+
+        <div>
+          <strong>التاريخ:</strong>
+          ${esc(sale.date || '')}
+        </div>
+
+        <div>
+          <strong>العميل:</strong>
+          ${esc(customerNameText)}
+        </div>
+
+      </div>
+
+      <table class="print-table">
+
+        <tr>
+          <th>البيان</th>
+          <th>المبلغ</th>
+        </tr>
+
+        <tr>
+          <td>إجمالي الفاتورة</td>
+          <td>${money(gross)}</td>
+        </tr>
+
+        <tr>
+          <td>الخصم</td>
+          <td>${money(discount)}</td>
+        </tr>
+
+        <tr>
+          <td><strong>الصافي</strong></td>
+          <td><strong>${money(net)}</strong></td>
+        </tr>
+
+      </table>
+
+      ${
+        sale.notes
+        ? `
+          <div class="print-notes">
+            <strong>ملاحظات:</strong>
+            ${esc(sale.notes)}
+          </div>
+        `
+        : ''
+      }
+
+      <div class="print-footer">
+        شكراً لتعاملكم معنا
+      </div>
+
+    </div>
+  `;
+
+  showPage('printPage');
+
+  setTimeout(function(){
+
+    if(
+      window.AndroidFirebase &&
+      AndroidFirebase.printWebView
+    ){
+      AndroidFirebase.printWebView();
+    }else{
+      window.print();
+    }
+
+  },300);
 }
 
-const x=
-id
-?db.receipts.find(v=>v.id==id)
-:null;
 
-openModal(
-x?'تعديل سند القبض':'سند قبض',
+/* =========================
+   سندات القبض
+========================= */
 
-`
+function openReceiptForm(id=null){
 
-<div class="grid">
+  editingReceiptId = id;
 
-<label>
-رقم السند (اختياري)
-<input
-id="rNo"
-value="${esc(x?.no||'')}">
-</label>
+  populateCustomerSelects();
 
-<label>
-التاريخ
-<input
-id="rDate"
-type="date"
-value="${esc(x?.date||today())}">
-</label>
+  const customer =
+    document.getElementById('receiptCustomer');
 
-<label>
-الزبون
-<select id="rCust">
-${customerOptions(x?.customerId||'')}
-</select>
-</label>
+  const number =
+    document.getElementById('receiptNo');
 
-<label>
-المبلغ
-<input
-id="rAmount"
-type="number"
-min="0"
-step="0.01"
-value="${Number(x?.amount||0)}">
-</label>
+  const invoice =
+    document.getElementById('receiptInvoice');
 
-<label>
-طريقة الدفع
-<select id="rMethod">
+  const date =
+    document.getElementById('receiptDate');
 
-<option ${x?.method==='كاش'?'selected':''}>
-كاش
-</option>
+  const amount =
+    document.getElementById('receiptAmount');
 
-<option ${x?.method==='MoMo'?'selected':''}>
-MoMo
-</option>
+  const method =
+    document.getElementById('receiptMethod');
 
-<option ${x?.method==='بنك'?'selected':''}>
-بنك
-</option>
+  const notes =
+    document.getElementById('receiptNotes');
 
-<option ${x?.method==='أخرى'?'selected':''}>
-أخرى
-</option>
+  if(id){
 
-</select>
-</label>
+    const receipt =
+      db.receipts.find(x => x.id === id);
 
-<label>
-رقم الفاتورة (اختياري)
-<input
-id="rInvoice"
-value="${esc(x?.invoice||'')}">
-</label>
+    if(!receipt){
+      showToast('سند القبض غير موجود');
+      return;
+    }
 
-<div class="actions full">
+    customer.value = receipt.customerId || '';
+    number.value = receipt.no || '';
+    invoice.value = receipt.invoice || '';
+    date.value = receipt.date || today();
+    amount.value = receipt.amount || 0;
+    method.value = receipt.method || 'نقدي';
+    notes.value = receipt.notes || '';
 
-<button
-class="btn green"
-onclick="saveReceipt(${id||'null'})">
-حفظ السند
-</button>
+    document.getElementById('receiptModalTitle')
+      .textContent = 'تعديل سند القبض';
 
-<button
-class="btn red"
-onclick="closeModal()">
-إلغاء
-</button>
+  }else{
 
-</div>
+    customer.value = '';
+    number.value = '';
+    invoice.value = '';
+    date.value = today();
+    amount.value = '';
+    method.value = 'نقدي';
+    notes.value = '';
 
-</div>
-`
-);
+    document.getElementById('receiptModalTitle')
+      .textContent = 'سند قبض جديد';
+  }
 
+  openModal('receiptModal');
 }
 
 
-function saveReceipt(id){
+function saveReceipt(){
 
-const no=
-document.getElementById(
-'rNo'
-).value.trim();
+  const customerId =
+    document.getElementById('receiptCustomer').value;
 
-const date=
-document.getElementById(
-'rDate'
-).value;
+  const no =
+    document.getElementById('receiptNo').value.trim();
 
-const customerId=
-Number(
-document.getElementById(
-'rCust'
-).value
-);
+  const invoice =
+    document.getElementById('receiptInvoice').value.trim();
 
-const amount=
-Number(
-document.getElementById(
-'rAmount'
-).value
-)||0;
+  const date =
+    document.getElementById('receiptDate').value || today();
 
-const method=
-document.getElementById(
-'rMethod'
-).value;
+  const amount =
+    Number(document.getElementById('receiptAmount').value || 0);
 
-const invoice=
-document.getElementById(
-'rInvoice'
-).value.trim();
+  const method =
+    document.getElementById('receiptMethod').value;
 
-if(!customerId){
+  const notes =
+    document.getElementById('receiptNotes').value.trim();
 
-alert('اختر الزبون');
-return;
+  if(!customerId){
+    showToast('اختر العميل أولاً');
+    return;
+  }
 
+  if(amount <= 0){
+    showToast('أدخل مبلغ القبض');
+    return;
+  }
+
+  if(editingReceiptId){
+
+    const receipt =
+      db.receipts.find(x => x.id === editingReceiptId);
+
+    if(receipt){
+
+      receipt.customerId = customerId;
+      receipt.no =
+        no || String(receipt.no || db.seq.r++);
+
+      receipt.invoice = invoice;
+      receipt.date = date;
+      receipt.amount = amount;
+      receipt.method = method;
+      receipt.notes = notes;
+
+    }
+
+  }else{
+
+    db.receipts.push({
+
+      id: 'r_' + Date.now(),
+
+      customerId: customerId,
+
+      no:
+        no || String(db.seq.r++),
+
+      invoice: invoice,
+
+      date: date,
+
+      amount: amount,
+
+      method: method,
+
+      notes: notes
+
+    });
+
+  }
+
+  editingReceiptId = null;
+
+  save();
+
+  closeModal('receiptModal');
+
+  showToast('تم حفظ سند القبض');
+
+  showPage('receipts');
 }
 
-if(amount<=0){
 
-alert('اكتب مبلغًا صحيحًا');
-return;
-
-}
-
-const obj={
-no,
-date,
-customerId,
-amount,
-method,
-invoice
-};
-
-if(id){
-
-const old=
-db.receipts.find(
-x=>x.id==id
-);
-
-Object.assign(old,obj);
-
-}else{
-
-db.receipts.push({
-id:Date.now(),
-...obj
-});
-
-}
-
-save();
-closeModal();
-
+function editReceipt(id){
+  openReceiptForm(id);
 }
 
 
 function deleteReceipt(id){
 
-if(!confirm(
-'هل تريد حذف سند القبض؟'
-))
-return;
+  if(!confirm(
+    'هل تريد حذف سند القبض؟'
+  )){
+    return;
+  }
 
-db.receipts=
-db.receipts.filter(
-x=>x.id!=id
-);
+  db.receipts =
+    db.receipts.filter(x => x.id !== id);
 
-save();
+  save();
 
+  showToast('تم حذف سند القبض');
 }
 
 
-function openReturn(id=null){
+/* =========================
+   المرتجعات
+========================= */
 
-if(!db.customers.length){
+function openReturnForm(id=null){
 
-alert('أضف زبونًا أولاً');
-return;
+  editingReturnId = id;
 
-}
+  populateCustomerSelects();
 
-const x=
-id
-?db.returns.find(v=>v.id==id)
-:null;
+  const customer =
+    document.getElementById('returnCustomer');
 
-openModal(
-x?'تعديل المرتجع':'مرتجع جديد',
+  const number =
+    document.getElementById('returnNo');
 
-`
+  const invoice =
+    document.getElementById('returnInvoice');
 
-<div class="grid">
+  const date =
+    document.getElementById('returnDate');
 
-<label>
-رقم المرتجع (اختياري)
-<input
-id="rtNo"
-value="${esc(x?.no||'')}">
-</label>
+  const amount =
+    document.getElementById('returnAmount');
 
-<label>
-التاريخ
-<input
-id="rtDate"
-type="date"
-value="${esc(x?.date||today())}">
-</label>
+  const notes =
+    document.getElementById('returnNotes');
 
-<label>
-الزبون
-<select id="rtCust">
-${customerOptions(x?.customerId||'')}
-</select>
-</label>
+  if(id){
 
-<label>
-رقم الفاتورة (اختياري)
-<input
-id="rtInvoice"
-value="${esc(x?.invoice||'')}">
-</label>
+    const item =
+      db.returns.find(x => x.id === id);
 
-<label>
-مبلغ المرتجع
-<input
-id="rtAmount"
-type="number"
-min="0"
-step="0.01"
-value="${Number(x?.amount||0)}">
-</label>
+    if(!item){
+      showToast('المرتجع غير موجود');
+      return;
+    }
 
-<label class="full">
-الملاحظات
-<textarea id="rtNotes">${esc(x?.notes||'')}</textarea>
-</label>
+    customer.value = item.customerId || '';
+    number.value = item.no || '';
+    invoice.value = item.invoice || '';
+    date.value = item.date || today();
+    amount.value = item.amount || 0;
+    notes.value = item.notes || '';
 
-<div class="actions full">
+    document.getElementById('returnModalTitle')
+      .textContent = 'تعديل المرتجع';
 
-<button
-class="btn orange"
-onclick="saveReturn(${id||'null'})">
-حفظ المرتجع
-</button>
+  }else{
 
-<button
-class="btn red"
-onclick="closeModal()">
-إلغاء
-</button>
+    customer.value = '';
+    number.value = '';
+    invoice.value = '';
+    date.value = today();
+    amount.value = '';
+    notes.value = '';
 
-</div>
+    document.getElementById('returnModalTitle')
+      .textContent = 'مرتجع جديد';
 
-</div>
-`
-);
+  }
 
+  openModal('returnModal');
 }
 
 
-function saveReturn(id){
+function saveReturn(){
 
-const no=
-document.getElementById(
-'rtNo'
-).value.trim();
+  const customerId =
+    document.getElementById('returnCustomer').value;
 
-const date=
-document.getElementById(
-'rtDate'
-).value;
+  const no =
+    document.getElementById('returnNo').value.trim();
 
-const customerId=
-Number(
-document.getElementById(
-'rtCust'
-).value
-);
+  const invoice =
+    document.getElementById('returnInvoice').value.trim();
 
-const invoice=
-document.getElementById(
-'rtInvoice'
-).value.trim();
+  const date =
+    document.getElementById('returnDate').value || today();
 
-const amount=
-Number(
-document.getElementById(
-'rtAmount'
-).value
-)||0;
+  const amount =
+    Number(document.getElementById('returnAmount').value || 0);
 
-const notes=
-document.getElementById(
-'rtNotes'
-).value.trim();
+  const notes =
+    document.getElementById('returnNotes').value.trim();
 
-if(!customerId){
+  if(!customerId){
+    showToast('اختر العميل أولاً');
+    return;
+  }
 
-alert('اختر الزبون');
-return;
+  if(amount <= 0){
+    showToast('أدخل قيمة المرتجع');
+    return;
+  }
 
+  if(editingReturnId){
+
+    const item =
+      db.returns.find(x => x.id === editingReturnId);
+
+    if(item){
+
+      item.customerId = customerId;
+
+      item.no =
+        no || String(item.no || db.seq.rt++);
+
+      item.invoice = invoice;
+
+      item.date = date;
+
+      item.amount = amount;
+
+      item.notes = notes;
+
+    }
+
+  }else{
+
+    db.returns.push({
+
+      id: 'rt_' + Date.now(),
+
+      customerId: customerId,
+
+      no:
+        no || String(db.seq.rt++),
+
+      invoice: invoice,
+
+      date: date,
+
+      amount: amount,
+
+      notes: notes
+
+    });
+
+  }
+
+  editingReturnId = null;
+
+  save();
+
+  closeModal('returnModal');
+
+  showToast('تم حفظ المرتجع');
+
+  showPage('returns');
 }
 
-if(amount<=0){
 
-alert('اكتب مبلغ المرتجع');
-return;
-
-}
-
-const obj={
-no,
-date,
-customerId,
-invoice,
-amount,
-notes
-};
-
-if(id){
-
-const old=
-db.returns.find(
-x=>x.id==id
-);
-
-Object.assign(old,obj);
-
-}else{
-
-db.returns.push({
-id:Date.now(),
-...obj
-});
-
-}
-
-save();
-closeModal();
-
+function editReturn(id){
+  openReturnForm(id);
 }
 
 
 function deleteReturn(id){
 
-if(!confirm(
-'هل تريد حذف هذا المرتجع؟'
-))
-return;
+  if(!confirm(
+    'هل تريد حذف هذا المرتجع؟'
+  )){
+    return;
+  }
 
-db.returns=
-db.returns.filter(
-x=>x.id!=id
-);
+  db.returns =
+    db.returns.filter(x => x.id !== id);
 
-save();
+  save();
 
+  showToast('تم حذف المرتجع');
+}
+
+
+/* =========================
+   كشف الحساب
+========================= */
+
+function getCustomerStatement(customerId){
+
+  const rows = [];
+
+  db.sales
+    .filter(x => x.customerId === customerId)
+    .forEach(x => {
+
+      const gross =
+        Number(x.total || 0);
+
+      const discount =
+        Number(x.discount || 0);
+
+      rows.push({
+
+        date: x.date || '',
+
+        type: 'فاتورة',
+
+        no: x.no || '',
+
+        description: 'فاتورة مبيعات',
+
+        debit: gross,
+
+        credit: 0
+
+      });
+
+      if(discount > 0){
+
+        rows.push({
+
+          date: x.date || '',
+
+          type: 'خصم',
+
+          no: x.no || '',
+
+          description: 'خصم على الفاتورة',
+
+          debit: 0,
+
+          credit: discount
+
+        });
+
+      }
+
+    });
+
+
+  db.receipts
+    .filter(x => x.customerId === customerId)
+    .forEach(x => {
+
+      rows.push({
+
+        date: x.date || '',
+
+        type: 'قبض',
+
+        no: x.no || '',
+
+        description: 'سند قبض',
+
+        debit: 0,
+
+        credit: Number(x.amount || 0)
+
+      });
+
+    });
+
+
+  db.returns
+    .filter(x => x.customerId === customerId)
+    .forEach(x => {
+
+      rows.push({
+
+        date: x.date || '',
+
+        type: 'مرتجع',
+
+        no: x.no || '',
+
+        description: 'مرتجع مبيعات',
+
+        debit: 0,
+
+        credit: Number(x.amount || 0)
+
+      });
+
+    });
+
+
+  rows.sort(function(a,b){
+
+    return String(a.date).localeCompare(
+      String(b.date)
+    );
+
+  });
+
+  return rows;
 }
 
 
 function renderStatement(){
 
-const id=
-Number(
-document.getElementById(
-'statementCustomer'
-)?.value||0
+  const select =
+    document.getElementById('statementCustomer');
+
+  const customerId =
+    select ? select.value : '';
+
+  const area =
+    document.getElementById('statementArea');
+
+  if(!area) return;
+
+  if(!customerId){
+
+    area.innerHTML = `
+      <div class="empty">
+        اختر العميل لعرض كشف الحساب
+      </div>
+    `;
+
+    return;
+  }
+
+  const customer =
+    db.customers.find(x => x.id === customerId);
+
+  if(!customer){
+
+    area.innerHTML = `
+      <div class="empty">
+        العميل غير موجود
+      </div>
+    `;
+
+    return;
+  }
+
+  const rows =
+    getCustomerStatement(customerId);
+
+  let debit = 0;
+  let credit = 0;
+
+  rows.forEach(function(row){
+
+    debit += Number(row.debit || 0);
+
+    credit += Number(row.credit || 0);
+
+  });
+
+  const balance =
+    debit - credit;
+
+  const receipts =
+    db.receipts
+      .filter(x => x.customerId === customerId)
+      .reduce(
+        (sum,x) =>
+          sum + Number(x.amount || 0),
+        0
+      );
+
+  const commissionPercent =
+    customerCommission(customerId);
+
+  const commission =
+    receipts * commissionPercent / 100;
+
+
+  let html = `
+
+    <div class="statement-head">
+
+      <div>
+        <strong>كشف حساب العميل</strong>
+      </div>
+
+      <div>
+        العميل:
+        <strong>${esc(customer.name)}</strong>
+      </div>
+
+      ${
+        customer.phone
+        ? `<div>الهاتف: ${esc(customer.phone)}</div>`
+        : ''
+      }
+
+    </div>
+
+    <div class="summary-grid">
+
+      <div class="summary-card">
+        <span>إجمالي المدين</span>
+        <strong>${money(debit)}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>إجمالي المقبوضات</span>
+        <strong>${money(receipts)}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>العمولة</span>
+        <strong>${money(commission)}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>الرصيد المتبقي</span>
+        <strong>${money(balance)}</strong>
+      </div>
+
+    </div>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>التاريخ</th>
+            <th>النوع</th>
+            <th>الرقم</th>
+            <th>البيان</th>
+            <th>مدين</th>
+            <th>دائن</th>
+            <th>الرصيد</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+  `;
+
+  let running = 0;
+
+  rows.forEach(function(row){
+
+    running +=
+      Number(row.debit || 0)
+      -
+      Number(row.credit || 0);
+
+    html += `
+
+      <tr>
+
+        <td>${esc(row.date)}</td>
+
+        <td>${esc(row.type)}</td>
+
+        <td>${esc(row.no)}</td>
+
+        <td>${esc(row.description)}</td>
+
+        <td>${money(row.debit)}</td>
+
+        <td>${money(row.credit)}</td>
+
+        <td>
+          <strong>${money(running)}</strong>
+        </td>
+
+      </tr>
+
+    `;
+
+  });
+
+
+  if(!rows.length){
+
+    html += `
+
+      <tr>
+
+        <td colspan="7"
+            style="text-align:center;padding:25px">
+
+          لا توجد حركة لهذا العميل
+
+        </td>
+
+      </tr>
+
+    `;
+
+  }
+
+
+  html += `
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div class="statement-total">
+
+      <div>
+        إجمالي المدين:
+        <strong>${money(debit)}</strong>
+      </div>
+
+      <div>
+        إجمالي الدائن:
+        <strong>${money(credit)}</strong>
+      </div>
+
+      <div>
+        الرصيد:
+        <strong>${money(balance)}</strong>
+      </div>
+
+    </div>
+
+    <div class="statement-actions no-print">
+
+      <button
+        class="btn primary"
+        onclick="printStatement('${customerId}')">
+
+        🖨️ طباعة كشف الحساب
+
+      </button>
+
+    </div>
+
+  `;
+
+  area.innerHTML = html;
+}
+
+
+function printStatement(customerId){
+
+  const customer =
+    db.customers.find(x => x.id === customerId);
+
+  if(!customer){
+    showToast('العميل غير موجود');
+    return;
+  }
+
+  const rows =
+    getCustomerStatement(customerId);
+
+  let debit = 0;
+  let credit = 0;
+  let running = 0;
+
+  let rowsHtml = '';
+
+  rows.forEach(function(row){
+
+    debit += Number(row.debit || 0);
+
+    credit += Number(row.credit || 0);
+
+    running +=
+      Number(row.debit || 0)
+      -
+      Number(row.credit || 0);
+
+    rowsHtml += `
+
+      <tr>
+
+        <td>${esc(row.date)}</td>
+        <td>${esc(row.type)}</td>
+        <td>${esc(row.no)}</td>
+        <td>${esc(row.description)}</td>
+        <td>${money(row.debit)}</td>
+        <td>${money(row.credit)}</td>
+        <td>${money(running)}</td>
+
+      </tr>
+
+    `;
+
+  });
+
+  const receipts =
+    db.receipts
+      .filter(x => x.customerId === customerId)
+      .reduce(
+        (sum,x) =>
+          sum + Number(x.amount || 0),
+        0
+      );
+
+  const commissionPercent =
+    customerCommission(customerId);
+
+  const commission =
+    receipts * commissionPercent / 100;
+
+  const balance =
+    debit - credit;
+
+  document.getElementById('printInvoiceArea').innerHTML = `
+
+    <div class="print-invoice">
+
+      <div class="print-header">
+
+        <h1>
+          ${esc(
+            settings.companyName ||
+            'نظام المبيعات والزبائن'
+          )}
+        </h1>
+
+        ${
+          settings.companyPhone
+          ? `<div>${esc(settings.companyPhone)}</div>`
+          : ''
+        }
+
+        ${
+          settings.companyAddress
+          ? `<div>${esc(settings.companyAddress)}</div>`
+          : ''
+        }
+
+      </div>
+
+      <hr>
+
+      <h2>كشف حساب</h2>
+
+      <div class="print-info">
+
+        <div>
+          <strong>العميل:</strong>
+          ${esc(customer.name)}
+        </div>
+
+        ${
+          customer.phone
+          ? `
+            <div>
+              <strong>الهاتف:</strong>
+              ${esc(customer.phone)}
+            </div>
+          `
+          : ''
+        }
+
+        <div>
+          <strong>تاريخ الكشف:</strong>
+          ${today()}
+        </div>
+
+      </div>
+
+      <table class="print-table">
+
+        <thead>
+
+          <tr>
+            <th>التاريخ</th>
+            <th>النوع</th>
+            <th>الرقم</th>
+            <th>البيان</th>
+            <th>مدين</th>
+            <th>دائن</th>
+            <th>الرصيد</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${rowsHtml}
+
+        </tbody>
+
+      </table>
+
+      <br>
+
+      <table class="print-table">
+
+        <tr>
+          <td><strong>إجمالي المدين</strong></td>
+          <td>${money(debit)}</td>
+        </tr>
+
+        <tr>
+          <td><strong>إجمالي الدائن</strong></td>
+          <td>${money(credit)}</td>
+        </tr>
+
+        <tr>
+          <td><strong>إجمالي المقبوضات</strong></td>
+          <td>${money(receipts)}</td>
+        </tr>
+
+        <tr>
+          <td><strong>نسبة العمولة</strong></td>
+          <td>${commissionPercent}%</td>
+        </tr>
+
+        <tr>
+          <td><strong>العمولة</strong></td>
+          <td>${money(commission)}</td>
+        </tr>
+
+        <tr>
+          <td><strong>الرصيد المتبقي</strong></td>
+          <td><strong>${money(balance)}</strong></td>
+        </tr>
+
+      </table>
+
+      <div class="print-footer">
+        كشف حساب رسمي
+      </div>
+
+    </div>
+
+  `;
+
+  showPage('printPage');
+
+  setTimeout(function(){
+
+    if(
+      window.AndroidFirebase &&
+      AndroidFirebase.printWebView
+    ){
+
+      AndroidFirebase.printWebView();
+
+    }else{
+
+      window.print();
+
+    }
+
+  },300);
+}
+
+
+/* =========================
+   البحث في الفواتير
+========================= */
+
+function searchSales(){
+
+  const input =
+    document.getElementById('salesSearch');
+
+  const q =
+    input
+    ? input.value.trim().toLowerCase()
+    : '';
+
+  const list =
+    document.getElementById('salesList');
+
+  if(!list) return;
+
+  const sales =
+    db.sales.filter(function(sale){
+
+      const customer =
+        customerName(sale.customerId)
+          .toLowerCase();
+
+      return (
+        !q ||
+        customer.includes(q) ||
+        String(sale.no || '')
+          .toLowerCase()
+          .includes(q)
+      );
+
+    });
+
+  renderSalesList(sales);
+}
+
+
+/* =========================
+   البحث في سندات القبض
+========================= */
+
+function searchReceipts(){
+
+  const input =
+    document.getElementById('receiptsSearch');
+
+  const q =
+    input
+    ? input.value.trim().toLowerCase()
+    : '';
+
+  const list =
+    document.getElementById('receiptsList');
+
+  if(!list) return;
+
+  const receipts =
+    db.receipts.filter(function(item){
+
+      const customer =
+        customerName(item.customerId)
+          .toLowerCase();
+
+      return (
+        !q ||
+        customer.includes(q) ||
+        String(item.no || '')
+          .toLowerCase()
+          .includes(q) ||
+        String(item.invoice || '')
+          .toLowerCase()
+          .includes(q)
+      );
+
+    });
+
+  renderReceiptsList(receipts);
+}
+
+
+/* =========================
+   البحث في المرتجعات
+========================= */
+
+function searchReturns(){
+
+  const input =
+    document.getElementById('returnsSearch');
+
+  const q =
+    input
+    ? input.value.trim().toLowerCase()
+    : '';
+
+  const list =
+    document.getElementById('returnsList');
+
+  if(!list) return;
+
+  const returns =
+    db.returns.filter(function(item){
+
+      const customer =
+        customerName(item.customerId)
+          .toLowerCase();
+
+      return (
+        !q ||
+        customer.includes(q) ||
+        String(item.no || '')
+          .toLowerCase()
+          .includes(q) ||
+        String(item.invoice || '')
+          .toLowerCase()
+          .includes(q)
+      );
+
+    });
+
+  renderReturnsList(returns);
+}
+ /* =========================
+   PART 4
+   العرض + الإعدادات + كشف الحساب
+========================= */
+
+function renderSalesList(sales){
+
+  const list =
+    document.getElementById('salesList');
+
+  if(!list) return;
+
+  if(!sales){
+    sales = db.sales;
+  }
+
+  if(!sales.length){
+
+    list.innerHTML = `
+      <div class="empty">
+        لا توجد فواتير
+      </div>
+    `;
+
+    return;
+  }
+
+  list.innerHTML =
+    sales.map(function(sale){
+
+      const customer =
+        customerName(sale.customerId);
+
+      const gross =
+        Number(sale.total || 0);
+
+      const discount =
+        Number(sale.discount || 0);
+
+      const net =
+        gross - discount;
+
+      return `
+
+        <div class="list-card">
+
+          <div class="list-main">
+
+            <div class="list-title">
+              فاتورة رقم ${esc(sale.no || '')}
+            </div>
+
+            <div class="list-sub">
+              ${esc(customer)}
+              •
+              ${esc(sale.date || '')}
+            </div>
+
+          </div>
+
+          <div class="list-amount">
+            ${money(net)}
+          </div>
+
+          <div class="list-actions">
+
+            <button
+              class="icon-btn"
+              onclick="editSale('${sale.id}')">
+              ✏️
+            </button>
+
+            <button
+              class="icon-btn"
+              onclick="printInvoice('${sale.id}')">
+              🖨️
+            </button>
+
+            <button
+              class="icon-btn danger"
+              onclick="deleteSale('${sale.id}')">
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join('');
+}
+
+
+function renderReceiptsList(receipts){
+
+  const list =
+    document.getElementById('receiptsList');
+
+  if(!list) return;
+
+  if(!receipts){
+    receipts = db.receipts;
+  }
+
+  if(!receipts.length){
+
+    list.innerHTML = `
+      <div class="empty">
+        لا توجد سندات قبض
+      </div>
+    `;
+
+    return;
+  }
+
+  list.innerHTML =
+    receipts.map(function(item){
+
+      return `
+
+        <div class="list-card">
+
+          <div class="list-main">
+
+            <div class="list-title">
+              سند قبض رقم ${esc(item.no || '')}
+            </div>
+
+            <div class="list-sub">
+              ${esc(customerName(item.customerId))}
+              •
+              ${esc(item.date || '')}
+            </div>
+
+            ${
+              item.invoice
+              ? `
+                <div class="list-sub">
+                  الفاتورة: ${esc(item.invoice)}
+                </div>
+              `
+              : ''
+            }
+
+          </div>
+
+          <div class="list-amount">
+            ${money(item.amount)}
+          </div>
+
+          <div class="list-actions">
+
+            <button
+              class="icon-btn"
+              onclick="editReceipt('${item.id}')">
+              ✏️
+            </button>
+
+            <button
+              class="icon-btn danger"
+              onclick="deleteReceipt('${item.id}')">
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join('');
+}
+
+
+function renderReturnsList(returns){
+
+  const list =
+    document.getElementById('returnsList');
+
+  if(!list) return;
+
+  if(!returns){
+    returns = db.returns;
+  }
+
+  if(!returns.length){
+
+    list.innerHTML = `
+      <div class="empty">
+        لا توجد مرتجعات
+      </div>
+    `;
+
+    return;
+  }
+
+  list.innerHTML =
+    returns.map(function(item){
+
+      return `
+
+        <div class="list-card">
+
+          <div class="list-main">
+
+            <div class="list-title">
+              مرتجع رقم ${esc(item.no || '')}
+            </div>
+
+            <div class="list-sub">
+              ${esc(customerName(item.customerId))}
+              •
+              ${esc(item.date || '')}
+            </div>
+
+            ${
+              item.invoice
+              ? `
+                <div class="list-sub">
+                  الفاتورة: ${esc(item.invoice)}
+                </div>
+              `
+              : ''
+            }
+
+          </div>
+
+          <div class="list-amount">
+            ${money(item.amount)}
+          </div>
+
+          <div class="list-actions">
+
+            <button
+              class="icon-btn"
+              onclick="editReturn('${item.id}')">
+              ✏️
+            </button>
+
+            <button
+              class="icon-btn danger"
+              onclick="deleteReturn('${item.id}')">
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join('');
+}
+
+
+/* =========================
+   تحديث كشف الحساب
+========================= */
+
+function updateStatement(){
+
+  populateStatementCustomers();
+
+  renderStatement();
+
+}
+
+
+/* =========================
+   إعدادات التطبيق
+========================= */
+
+function loadSettingsToForm(){
+
+  const name =
+    document.getElementById('companyName');
+
+  const phone =
+    document.getElementById('companyPhone');
+
+  const address =
+    document.getElementById('companyAddress');
+
+  const language =
+    document.getElementById('languageSelect');
+
+  const dark =
+    document.getElementById('darkModeToggle');
+
+  if(name)
+    name.value = settings.companyName || '';
+
+  if(phone)
+    phone.value = settings.companyPhone || '';
+
+  if(address)
+    address.value = settings.companyAddress || '';
+
+  if(language)
+    language.value = settings.language || 'ar';
+
+  if(dark)
+    dark.checked = !!settings.dark;
+
+}
+
+
+function saveSettings(){
+
+  settings.companyName =
+    document.getElementById('companyName')?.value.trim() || '';
+
+  settings.companyPhone =
+    document.getElementById('companyPhone')?.value.trim() || '';
+
+  settings.companyAddress =
+    document.getElementById('companyAddress')?.value.trim() || '';
+
+  settings.language =
+    document.getElementById('languageSelect')?.value || 'ar';
+
+  saveLocalSettings();
+
+  applyTheme();
+
+  applyLanguage();
+
+  showToast('تم حفظ الإعدادات');
+
+  render();
+
+}
+
+
+function applyTheme(){
+
+  if(settings.dark){
+
+    document.body.classList.add('dark');
+
+  }else{
+
+    document.body.classList.remove('dark');
+
+  }
+
+}
+
+
+function toggleDarkMode(){
+
+  const toggle =
+    document.getElementById('darkModeToggle');
+
+  settings.dark =
+    toggle ? toggle.checked : !settings.dark;
+
+  saveLocalSettings();
+
+  applyTheme();
+
+}
+
+
+/* =========================
+   اللغة
+========================= */
+
+function applyLanguage(){
+
+  const en =
+    settings.language === 'en';
+
+  document.documentElement.lang =
+    en ? 'en' : 'ar';
+
+  document.documentElement.dir =
+    en ? 'ltr' : 'rtl';
+
+  const title =
+    document.querySelector('.topbar-title');
+
+  if(title){
+
+    title.textContent =
+      en
+      ? 'Sales & Customers'
+      : 'نظام المبيعات والزبائن';
+
+  }
+
+  const navTexts =
+    document.querySelectorAll(
+      '.bottom-nav button'
+    );
+
+  const nav =
+    en
+    ? [
+        'Home',
+        'Customers',
+        'Sales',
+        'Receipts',
+        'More'
+      ]
+    : [
+        'الرئيسية',
+        'العملاء',
+        'الفواتير',
+        'القبض',
+        'المزيد'
+      ];
+
+  navTexts.forEach(function(btn,i){
+
+    if(nav[i]){
+
+      const span =
+        btn.querySelector('span');
+
+      if(span)
+        span.textContent = nav[i];
+
+    }
+
+  });
+
+}
+
+
+/* =========================
+   التنقل
+========================= */
+
+function render(){
+
+  renderHome();
+
+  renderCustomers();
+
+  renderSalesList();
+
+  renderReceiptsList();
+
+  renderReturnsList();
+
+  populateCustomerSelects();
+
+  populateStatementCustomers();
+
+  renderStatement();
+
+  loadSettingsToForm();
+
+  applyTheme();
+
+  applyLanguage();
+
+}
+
+
+/* =========================
+   مزامنة البيانات السحابية
+========================= */
+
+window.loadCloudData =
+function(data){
+
+  try{
+
+    if(!data){
+      cloudLoaded = true;
+      render();
+      return;
+    }
+
+    const cloud =
+      typeof data === 'string'
+      ? JSON.parse(data)
+      : data;
+
+    db =
+      normalizeDb(cloud);
+
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(db)
+    );
+
+    cloudLoaded = true;
+
+    render();
+
+    showToast(
+      'تم تحميل بياناتك من السحابة'
+    );
+
+  }catch(e){
+
+    console.log(e);
+
+    cloudLoaded = true;
+
+    render();
+
+  }
+
+};
+
+
+/* =========================
+   تحميل بيانات المستخدم
+========================= */
+
+function loadCloud(){
+
+  if(
+    window.AndroidFirebase &&
+    AndroidFirebase.getUserUid &&
+    AndroidFirebase.getUserUid()
+  ){
+
+    if(AndroidFirebase.loadData){
+
+      try{
+
+        AndroidFirebase.loadData();
+
+      }catch(e){
+
+        console.log(e);
+
+        cloudLoaded = true;
+
+        render();
+
+      }
+
+    }else{
+
+      cloudLoaded = true;
+
+      render();
+
+    }
+
+  }else{
+
+    cloudLoaded = true;
+
+    render();
+
+  }
+
+}
+
+
+/* =========================
+   ربط أزرار الصفحة
+========================= */
+
+function bindButtons(){
+
+  const addCustomer =
+    document.getElementById('addCustomerButton');
+
+  if(addCustomer){
+
+    addCustomer.onclick =
+      function(){
+        openCustomerForm();
+      };
+
+  }
+
+
+  const addSale =
+    document.getElementById('addSaleButton');
+
+  if(addSale){
+
+    addSale.onclick =
+      function(){
+        openSaleForm();
+      };
+
+  }
+
+
+  const addReceipt =
+    document.getElementById('addReceiptButton');
+
+  if(addReceipt){
+
+    addReceipt.onclick =
+      function(){
+        openReceiptForm();
+      };
+
+  }
+
+
+  const addReturn =
+    document.getElementById('addReturnButton');
+
+  if(addReturn){
+
+    addReturn.onclick =
+      function(){
+        openReturnForm();
+      };
+
+  }
+
+
+  const statementCustomer =
+    document.getElementById(
+      'statementCustomer'
+    );
+
+  if(statementCustomer){
+
+    statementCustomer.onchange =
+      function(){
+
+        renderStatement();
+
+      };
+
+  }
+
+
+  const dark =
+    document.getElementById(
+      'darkModeToggle'
+    );
+
+  if(dark){
+
+    dark.onchange =
+      function(){
+
+        toggleDarkMode();
+
+      };
+
+  }
+
+}
+
+
+/* =========================
+   تشغيل التطبيق
+========================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  function(){
+
+    bindButtons();
+
+    render();
+
+    loadCloud();
+
+  }
 );
 
-const body=
-document.getElementById(
-'statementBody'
-);
 
-if(!body)
-return;
+/* =========================
+   حفظ تلقائي عند رجوع الإنترنت
+========================= */
 
-if(!id){
+window.addEventListener(
+  'online',
+  function(){
 
-body.innerHTML=
-`<tr>
-<td colspan="5" class="empty">
-اختر زبونًا
-</td>
-</tr>`;
+    if(
+      cloudLoaded &&
+      window.AndroidFirebase &&
+      AndroidFirebase.getUserUid &&
+      AndroidFirebase.getUserUid() &&
+      AndroidFirebase.saveData
+    ){
 
-return;
+      try{
 
-}
+        AndroidFirebase.saveData(
+          JSON.stringify(db)
+        );
 
-let rows=[];
+        showToast(
+          'تمت مزامنة البيانات'
+        );
 
+      }catch(e){
 
-db.sales
-.filter(x=>x.customerId===id)
-.forEach(x=>{
+        console.log(e);
 
-rows.push({
+      }
 
-date:x.date,
+    }
 
-text:
-'فاتورة '+
-(x.no?'#'+x.no:''),
-
-debit:saleNet(x),
-
-credit:0
-
-});
-
-});
-
-
-db.sales
-.filter(
-x=>
-x.customerId===id &&
-Number(x.discount||0)>0
-)
-.forEach(x=>{
-
-rows.push({
-
-date:x.date,
-
-text:
-'خصم '+
-(x.no?'فاتورة #'+x.no:''),
-
-debit:0,
-
-credit:Number(x.discount||0)
-
-});
-
-});
-
-
-db.receipts
-.filter(x=>x.customerId===id)
-.forEach(x=>{
-
-rows.push({
-
-date:x.date,
-
-text:
-'سند قبض '+
-(x.no?'#'+x.no:''),
-
-debit:0,
-
-credit:Number(x.amount||0)
-
-});
-
-});
-
-
-db.returns
-.filter(x=>x.customerId===id)
-.forEach(x=>{
-
-rows.push({
-
-date:x.date,
-
-text:
-'مرتجع '+
-(x.no?'#'+x.no:''),
-
-debit:0,
-
-credit:Number(x.amount||0)
-
-});
-
-});
-
-
-rows.sort(
-(a,b)=>
-String(a.date)
-.localeCompare(String(b.date))
+  }
 );
 
 
-let bal=0;
+/* =========================
+   حماية أخطاء بسيطة
+========================= */
 
-body.innerHTML=
+window.addEventListener(
+  'error',
+  function(e){
 
-rows.map(x=>{
+    console.log(
+      'App error:',
+      e.message
+    );
 
-bal+=
-Number(x.debit||0)-
-Number(x.credit||0);
-
-return `
-
-<tr>
-
-<td>${esc(x.date)}</td>
-
-<td>${esc(x.text)}</td>
-
-<td>${money(x.debit)}</td>
-
-<td>${money(x.credit)}</td>
-
-<td>${money(bal)}</td>
-
-</tr>
-`;
-
-}).join('')
-
-||
-
-`<tr>
-<td colspan="5" class="empty">
-لا توجد حركة
-</td>
-</tr>`;
-
-}
+  }
+);
 
 
-render();
+/* =========================
+   ترحيل بيانات النسخة القديمة
+========================= */
+
+(function migrateOldData(){
+
+  try{
+
+    const oldData =
+      localStorage.getItem(
+        'sales_app_v1'
+      );
+
+    const newData =
+      localStorage.getItem(
+        KEY
+      );
+
+    if(
+      !newData &&
+      oldData
+    ){
+
+      const parsed =
+        JSON.parse(oldData);
+
+      db =
+        normalizeDb(parsed);
+
+      localStorage.setItem(
+        KEY,
+        JSON.stringify(db)
+      );
+
+    }
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+})();
 
 
-if(
-window.AndroidFirebase &&
-AndroidFirebase.loadData
-){
+/* =========================
+   بداية التشغيل النهائية
+========================= */
 
-AndroidFirebase.loadData();
+setTimeout(function(){
 
-}
+  try{
 
+    render();
 
-setTimeout(()=>{
+    loadCloud();
 
-if(!cloudLoaded){
+  }catch(e){
 
-cloudLoaded=true;
+    console.log(e);
 
-}
+  }
 
-},5000);
-
-</script>
-
-</body>
-</html> 
+},500);

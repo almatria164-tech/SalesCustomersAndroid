@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +62,8 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void saveData(String jsonData) {
 
-            if (jsonData == null) {
+            if (jsonData == null || jsonData.isEmpty()) {
+                showToast("لا توجد بيانات للحفظ");
                 return;
             }
 
@@ -70,6 +72,7 @@ public class MainActivity extends Activity {
             FirebaseUser user = firebaseAuth.getCurrentUser();
 
             if (user == null) {
+                showToast("خطأ: المستخدم غير مسجل الدخول");
                 return;
             }
 
@@ -90,7 +93,7 @@ public class MainActivity extends Activity {
 
                             Toast.makeText(
                                     MainActivity.this,
-                                    "تم حفظ البيانات",
+                                    "تم حفظ البيانات بنجاح",
                                     Toast.LENGTH_SHORT
                             ).show();
 
@@ -99,12 +102,37 @@ public class MainActivity extends Activity {
                     })
                     .addOnFailureListener(e -> {
 
+                        String errorCode = "UNKNOWN";
+
+                        if (e instanceof FirebaseFirestoreException) {
+                            FirebaseFirestoreException firestoreException =
+                                    (FirebaseFirestoreException) e;
+
+                            errorCode =
+                                    firestoreException
+                                            .getCode()
+                                            .name();
+                        }
+
+                        String errorMessage = e.getMessage();
+
+                        if (errorMessage == null ||
+                                errorMessage.isEmpty()) {
+                            errorMessage = "سبب غير معروف";
+                        }
+
+                        final String finalMessage =
+                                "خطأ الحفظ:\n"
+                                        + errorCode
+                                        + "\n"
+                                        + errorMessage;
+
                         runOnUiThread(() -> {
 
                             Toast.makeText(
                                     MainActivity.this,
-                                    "تعذر حفظ البيانات",
-                                    Toast.LENGTH_SHORT
+                                    finalMessage,
+                                    Toast.LENGTH_LONG
                             ).show();
 
                         });
@@ -115,7 +143,8 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String loadData() {
 
-            FirebaseUser user = firebaseAuth.getCurrentUser();
+            FirebaseUser user =
+                    firebaseAuth.getCurrentUser();
 
             if (user == null) {
                 return localData;
@@ -136,7 +165,8 @@ public class MainActivity extends Activity {
                             String json =
                                     documentSnapshot.getString("json");
 
-                            if (json != null && !json.isEmpty()) {
+                            if (json != null &&
+                                    !json.isEmpty()) {
 
                                 localData = json;
 
@@ -160,7 +190,41 @@ public class MainActivity extends Activity {
                     })
                     .addOnFailureListener(e -> {
 
-                        // الاحتفاظ بالبيانات المحلية عند فشل التحميل
+                        String errorCode = "UNKNOWN";
+
+                        if (e instanceof FirebaseFirestoreException) {
+
+                            FirebaseFirestoreException firestoreException =
+                                    (FirebaseFirestoreException) e;
+
+                            errorCode =
+                                    firestoreException
+                                            .getCode()
+                                            .name();
+                        }
+
+                        String errorMessage = e.getMessage();
+
+                        if (errorMessage == null ||
+                                errorMessage.isEmpty()) {
+                            errorMessage = "سبب غير معروف";
+                        }
+
+                        final String finalMessage =
+                                "خطأ تحميل البيانات:\n"
+                                        + errorCode
+                                        + "\n"
+                                        + errorMessage;
+
+                        runOnUiThread(() -> {
+
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    finalMessage,
+                                    Toast.LENGTH_LONG
+                            ).show();
+
+                        });
 
                     });
 
@@ -186,7 +250,9 @@ public class MainActivity extends Activity {
             FirebaseUser user =
                     firebaseAuth.getCurrentUser();
 
-            if (user != null && user.getEmail() != null) {
+            if (user != null &&
+                    user.getEmail() != null) {
+
                 return user.getEmail();
             }
 
@@ -199,7 +265,9 @@ public class MainActivity extends Activity {
             FirebaseUser user =
                     firebaseAuth.getCurrentUser();
 
-            if (user != null && user.getDisplayName() != null) {
+            if (user != null &&
+                    user.getDisplayName() != null) {
+
                 return user.getDisplayName();
             }
 
@@ -245,6 +313,19 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void showToast(String message) {
+
+        runOnUiThread(() -> {
+
+            Toast.makeText(
+                    MainActivity.this,
+                    message,
+                    Toast.LENGTH_LONG
+            ).show();
+
+        });
+    }
+
     private String escapeForJavaScript(String value) {
 
         if (value == null) {
@@ -267,7 +348,8 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
 
-        if (webView != null && webView.canGoBack()) {
+        if (webView != null &&
+                webView.canGoBack()) {
 
             webView.goBack();
 

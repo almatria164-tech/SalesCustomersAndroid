@@ -2,31 +2,23 @@ package com.example.salescustomers;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Base64;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.credentials.Credential;
-import androidx.credentials.CredentialManager;
-import androidx.credentials.CustomCredential;
-import androidx.credentials.GetCredentialRequest;
-import androidx.credentials.GetCredentialResponse;
-import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GoogleAuthProvider;
-
-import java.security.SecureRandom;
 
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private CredentialManager credentialManager;
+
+    private EditText emailEditText;
+    private EditText passwordEditText;
+
+    private Button loginButton;
+    private Button registerButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,164 +26,108 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-        credentialManager = CredentialManager.create(this);
 
-        Button googleButton = findViewById(R.id.googleSignInButton);
+        emailEditText = findViewById(R.id.emailEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
 
-        googleButton.setOnClickListener(v -> signInWithGoogle());
+        loginButton = findViewById(R.id.loginButton);
+        registerButton = findViewById(R.id.registerButton);
+
+        loginButton.setOnClickListener(v -> login());
+
+        registerButton.setOnClickListener(v -> register());
     }
 
-    private void signInWithGoogle() {
+    private void login() {
 
-        GetGoogleIdOption googleIdOption =
-                new GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(
-                                getString(R.string.default_web_client_id))
-                        .setNonce(generateNonce())
-                        .build();
+        String email = emailEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
 
-        GetCredentialRequest request =
-                new GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
-                        .build();
+        if (email.isEmpty()) {
+            emailEditText.setError("أدخل البريد الإلكتروني");
+            return;
+        }
 
-        credentialManager.getCredentialAsync(
-                this,
-                request,
-                null,
-                getMainExecutor(),
-                new androidx.credentials.CredentialManagerCallback<
-                        GetCredentialResponse,
-                        GetCredentialException>() {
+        if (password.isEmpty()) {
+            passwordEditText.setError("أدخل كلمة المرور");
+            return;
+        }
 
-                    @Override
-                    public void onResult(
-                            @NonNull GetCredentialResponse response) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
 
-                        handleCredential(
-                                response.getCredential());
-                    }
+                    if (task.isSuccessful()) {
 
-                    @Override
-                    public void onError(
-                            @NonNull GetCredentialException e) {
+                        startActivity(
+                                new Intent(
+                                        LoginActivity.this,
+                                        MainActivity.class
+                                )
+                        );
 
-                        String error =
-                                e.getClass().getSimpleName();
+                        finish();
 
-                        if (e.getMessage() != null) {
-                            error += "\n" + e.getMessage();
-                        }
+                    } else {
 
                         Toast.makeText(
                                 LoginActivity.this,
-                                "Google:\n" + error,
+                                "فشل تسجيل الدخول",
                                 Toast.LENGTH_LONG
                         ).show();
                     }
                 });
     }
 
-    private void handleCredential(Credential credential) {
+    private void register() {
 
-        if (credential instanceof CustomCredential) {
+        String email = emailEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
 
-            CustomCredential customCredential =
-                    (CustomCredential) credential;
-
-            if (GoogleIdTokenCredential
-                    .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                    .equals(customCredential.getType())) {
-
-                try {
-
-                    GoogleIdTokenCredential googleCredential =
-                            GoogleIdTokenCredential.createFrom(
-                                    customCredential.getData());
-
-                    firebaseAuthWithGoogle(
-                            googleCredential.getIdToken());
-
-                } catch (Exception e) {
-
-                    Toast.makeText(
-                            this,
-                            "بيانات Google غير صالحة",
-                            Toast.LENGTH_LONG
-                    ).show();
-                }
-
-            } else {
-
-                Toast.makeText(
-                        this,
-                        "نوع حساب Google غير مدعوم",
-                        Toast.LENGTH_LONG
-                ).show();
-            }
-
-        } else {
-
-            Toast.makeText(
-                    this,
-                    "لم يتم الحصول على بيانات Google",
-                    Toast.LENGTH_LONG
-            ).show();
+        if (email.isEmpty()) {
+            emailEditText.setError("أدخل البريد الإلكتروني");
+            return;
         }
-    }
 
-    private void firebaseAuthWithGoogle(String idToken) {
+        if (password.isEmpty()) {
+            passwordEditText.setError("أدخل كلمة المرور");
+            return;
+        }
 
-        AuthCredential credential =
-                GoogleAuthProvider.getCredential(
-                        idToken,
-                        null);
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
 
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(
-                        this,
-                        task -> {
+                    if (task.isSuccessful()) {
 
-                            if (task.isSuccessful()) {
+                        Toast.makeText(
+                                LoginActivity.this,
+                                "تم إنشاء الحساب بنجاح",
+                                Toast.LENGTH_LONG
+                        ).show();
 
-                                startActivity(
-                                        new Intent(
-                                                this,
-                                                MainActivity.class));
+                        startActivity(
+                                new Intent(
+                                        LoginActivity.this,
+                                        MainActivity.class
+                                )
+                        );
 
-                                finish();
+                        finish();
 
-                            } else {
+                    } else {
 
-                                String error =
-                                        "فشل تسجيل الدخول في Firebase";
+                        String message = "تعذر إنشاء الحساب";
 
-                                if (task.getException() != null) {
-                                    error += "\n"
-                                            + task.getException()
-                                            .getMessage();
-                                }
+                        if (task.getException() != null) {
+                            message += "\n"
+                                    + task.getException().getMessage();
+                        }
 
-                                Toast.makeText(
-                                        this,
-                                        error,
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
-                        });
-    }
-
-    private String generateNonce() {
-
-        byte[] nonce = new byte[32];
-
-        new SecureRandom().nextBytes(nonce);
-
-        return Base64.encodeToString(
-                nonce,
-                Base64.NO_WRAP
-                        | Base64.URL_SAFE
-                        | Base64.NO_PADDING);
+                        Toast.makeText(
+                                LoginActivity.this,
+                                message,
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                });
     }
 }

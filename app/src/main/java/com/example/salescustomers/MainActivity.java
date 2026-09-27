@@ -1,259 +1,101 @@
 package com.example.salescustomers;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends Activity {
 
     private WebView webView;
 
-    private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore firestore;
-
-    private String localData = "";
-
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-
         webView = new WebView(this);
+
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
 
+        // تشغيل JavaScript
         settings.setJavaScriptEnabled(true);
+
+        // تشغيل التخزين المحلي
         settings.setDomStorageEnabled(true);
+
+        // دعم قواعد البيانات المحلية
         settings.setDatabaseEnabled(true);
 
+        // السماح بملفات التطبيق المحلية
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
 
+        // تحسين العرض على الهاتف
+        settings.setLoadWithOverviewMode(false);
+        settings.setUseWideViewPort(false);
+
+        // منع التكبير غير الضروري
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
 
-        webView.addJavascriptInterface(
-                new AndroidFirebaseBridge(),
-                "AndroidFirebase"
+        // إبقاء الروابط داخل WebView
+        webView.setWebViewClient(
+            new WebViewClient()
         );
 
-        webView.setWebViewClient(new WebViewClient());
+        // جسر JavaScript مع Android
+        webView.addJavascriptInterface(
+            new AndroidFirebaseBridge(),
+            "AndroidFirebase"
+        );
 
-        webView.loadUrl("file:///android_asset/index.html");
+        // تحميل التطبيق
+        webView.loadUrl(
+            "file:///android_asset/index.html"
+        );
     }
 
     public class AndroidFirebaseBridge {
 
         @JavascriptInterface
-        public void saveData(String jsonData) {
-
-            if (jsonData == null || jsonData.isEmpty()) {
-                showToast("لا توجد بيانات للحفظ");
-                return;
-            }
-
-            localData = jsonData;
-
-            FirebaseUser user = firebaseAuth.getCurrentUser();
-
-            if (user == null) {
-                showToast("خطأ: المستخدم غير مسجل الدخول");
-                return;
-            }
-
-            String uid = user.getUid();
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("json", jsonData);
-
-            firestore
-                    .collection("users")
-                    .document(uid)
-                    .collection("appData")
-                    .document("sales")
-                    .set(data)
-                    .addOnSuccessListener(unused -> {
-
-                        runOnUiThread(() -> {
-
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "تم حفظ البيانات بنجاح",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
-                        });
-
-                    })
-                    .addOnFailureListener(e -> {
-
-                        String errorCode = "UNKNOWN";
-
-                        if (e instanceof FirebaseFirestoreException) {
-                            FirebaseFirestoreException firestoreException =
-                                    (FirebaseFirestoreException) e;
-
-                            errorCode =
-                                    firestoreException
-                                            .getCode()
-                                            .name();
-                        }
-
-                        String errorMessage = e.getMessage();
-
-                        if (errorMessage == null ||
-                                errorMessage.isEmpty()) {
-                            errorMessage = "سبب غير معروف";
-                        }
-
-                        final String finalMessage =
-                                "خطأ الحفظ:\n"
-                                        + errorCode
-                                        + "\n"
-                                        + errorMessage;
-
-                        runOnUiThread(() -> {
-
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    finalMessage,
-                                    Toast.LENGTH_LONG
-                            ).show();
-
-                        });
-
-                    });
-        }
-
-        @JavascriptInterface
-        public String loadData() {
-
-            FirebaseUser user =
-                    firebaseAuth.getCurrentUser();
-
-            if (user == null) {
-                return localData;
-            }
-
-            String uid = user.getUid();
-
-            firestore
-                    .collection("users")
-                    .document(uid)
-                    .collection("appData")
-                    .document("sales")
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-
-                        if (documentSnapshot.exists()) {
-
-                            String json =
-                                    documentSnapshot.getString("json");
-
-                            if (json != null &&
-                                    !json.isEmpty()) {
-
-                                localData = json;
-
-                                final String safeJson =
-                                        escapeForJavaScript(json);
-
-                                runOnUiThread(() -> {
-
-                                    webView.evaluateJavascript(
-                                            "if(typeof loadCloudData === 'function')" +
-                                            "{loadCloudData(" +
-                                            safeJson +
-                                            ");}",
-                                            null
-                                    );
-
-                                });
-                            }
-                        }
-
-                    })
-                    .addOnFailureListener(e -> {
-
-                        String errorCode = "UNKNOWN";
-
-                        if (e instanceof FirebaseFirestoreException) {
-
-                            FirebaseFirestoreException firestoreException =
-                                    (FirebaseFirestoreException) e;
-
-                            errorCode =
-                                    firestoreException
-                                            .getCode()
-                                            .name();
-                        }
-
-                        String errorMessage = e.getMessage();
-
-                        if (errorMessage == null ||
-                                errorMessage.isEmpty()) {
-                            errorMessage = "سبب غير معروف";
-                        }
-
-                        final String finalMessage =
-                                "خطأ تحميل البيانات:\n"
-                                        + errorCode
-                                        + "\n"
-                                        + errorMessage;
-
-                        runOnUiThread(() -> {
-
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    finalMessage,
-                                    Toast.LENGTH_LONG
-                            ).show();
-
-                        });
-
-                    });
-
-            return localData;
-        }
-
-        @JavascriptInterface
         public String getUserUid() {
-
-            FirebaseUser user =
-                    firebaseAuth.getCurrentUser();
-
-            if (user != null) {
-                return user.getUid();
+            try {
+                return com.google.firebase.auth.FirebaseAuth
+                    .getInstance()
+                    .getCurrentUser() != null
+                    ? com.google.firebase.auth.FirebaseAuth
+                        .getInstance()
+                        .getCurrentUser()
+                        .getUid()
+                    : "";
+            } catch (Exception e) {
+                return "";
             }
-
-            return "";
         }
 
         @JavascriptInterface
         public String getUserEmail() {
+            try {
+                if (
+                    com.google.firebase.auth.FirebaseAuth
+                        .getInstance()
+                        .getCurrentUser() != null
+                ) {
+                    String email =
+                        com.google.firebase.auth.FirebaseAuth
+                            .getInstance()
+                            .getCurrentUser()
+                            .getEmail();
 
-            FirebaseUser user =
-                    firebaseAuth.getCurrentUser();
-
-            if (user != null &&
-                    user.getEmail() != null) {
-
-                return user.getEmail();
+                    return email != null ? email : "";
+                }
+            } catch (Exception ignored) {
             }
 
             return "";
@@ -261,41 +103,51 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getUserName() {
+            try {
+                if (
+                    com.google.firebase.auth.FirebaseAuth
+                        .getInstance()
+                        .getCurrentUser() != null
+                ) {
+                    String name =
+                        com.google.firebase.auth.FirebaseAuth
+                            .getInstance()
+                            .getCurrentUser()
+                            .getDisplayName();
 
-            FirebaseUser user =
-                    firebaseAuth.getCurrentUser();
-
-            if (user != null &&
-                    user.getDisplayName() != null) {
-
-                return user.getDisplayName();
+                    return name != null ? name : "";
+                }
+            } catch (Exception ignored) {
             }
 
             return "";
         }
 
         @JavascriptInterface
-        public void logout() {
-
-            firebaseAuth.signOut();
-
-            runOnUiThread(() -> {
-
-                Toast.makeText(
-                        MainActivity.this,
-                        "تم تسجيل الخروج",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                webView.reload();
-
-            });
+        public boolean isLoggedIn() {
+            try {
+                return com.google.firebase.auth.FirebaseAuth
+                    .getInstance()
+                    .getCurrentUser() != null;
+            } catch (Exception e) {
+                return false;
+            }
         }
 
         @JavascriptInterface
-        public boolean isLoggedIn() {
+        public void logout() {
+            runOnUiThread(() -> {
 
-            return firebaseAuth.getCurrentUser() != null;
+                try {
+                    com.google.firebase.auth.FirebaseAuth
+                        .getInstance()
+                        .signOut();
+                } catch (Exception ignored) {
+                }
+
+                finish();
+
+            });
         }
 
         @JavascriptInterface
@@ -303,53 +155,23 @@ public class MainActivity extends Activity {
 
             runOnUiThread(() -> {
 
-                Toast.makeText(
-                        MainActivity.this,
-                        message,
-                        Toast.LENGTH_SHORT
+                android.widget.Toast.makeText(
+                    MainActivity.this,
+                    message == null ? "" : message,
+                    android.widget.Toast.LENGTH_SHORT
                 ).show();
 
             });
         }
     }
 
-    private void showToast(String message) {
-
-        runOnUiThread(() -> {
-
-            Toast.makeText(
-                    MainActivity.this,
-                    message,
-                    Toast.LENGTH_LONG
-            ).show();
-
-        });
-    }
-
-    private String escapeForJavaScript(String value) {
-
-        if (value == null) {
-            return "null";
-        }
-
-        String escaped = value;
-
-        escaped = escaped
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\'", "\\\'")
-                .replace("\r", "\\r")
-                .replace("\n", "\\n")
-                .replace("</", "<\\/");
-
-        return "\"" + escaped + "\"";
-    }
-
     @Override
     public void onBackPressed() {
 
-        if (webView != null &&
-                webView.canGoBack()) {
+        if (
+            webView != null &&
+            webView.canGoBack()
+        ) {
 
             webView.goBack();
 
@@ -358,20 +180,5 @@ public class MainActivity extends Activity {
             super.onBackPressed();
 
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-
-        if (webView != null) {
-
-            webView.stopLoading();
-            webView.setWebViewClient(null);
-            webView.destroy();
-            webView = null;
-
-        }
-
-        super.onDestroy();
     }
 }

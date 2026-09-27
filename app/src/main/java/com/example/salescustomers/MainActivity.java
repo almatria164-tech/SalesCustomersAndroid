@@ -8,8 +8,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -48,14 +46,6 @@ public class MainActivity extends Activity {
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
 
-        /*
-         * ربط Java مع JavaScript الموجود داخل index.html
-         *
-         * في index.html عندك:
-         * AndroidFirebase.saveData(...)
-         * AndroidFirebase.loadData()
-         * AndroidFirebase.getUserUid()
-         */
         webView.addJavascriptInterface(
                 new AndroidFirebaseBridge(),
                 "AndroidFirebase"
@@ -66,20 +56,8 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/index.html");
     }
 
-
-    // =========================================================
-    // AndroidFirebase Bridge
-    // =========================================================
-
     public class AndroidFirebaseBridge {
 
-        /*
-         * حفظ البيانات
-         *
-         * index.html يستدعي:
-         *
-         * AndroidFirebase.saveData(JSON.stringify(db));
-         */
         @JavascriptInterface
         public void saveData(String jsonData) {
 
@@ -109,34 +87,31 @@ public class MainActivity extends Activity {
                     .addOnSuccessListener(unused -> {
 
                         runOnUiThread(() -> {
+
                             Toast.makeText(
                                     MainActivity.this,
                                     "تم حفظ البيانات",
                                     Toast.LENGTH_SHORT
                             ).show();
+
                         });
 
                     })
                     .addOnFailureListener(e -> {
 
                         runOnUiThread(() -> {
+
                             Toast.makeText(
                                     MainActivity.this,
                                     "تعذر حفظ البيانات",
                                     Toast.LENGTH_SHORT
                             ).show();
+
                         });
 
                     });
         }
 
-
-        /*
-         * تحميل البيانات
-         *
-         * هذا يرجع آخر نسخة محلية فورًا،
-         * ثم نحاول تحميل النسخة الموجودة في Firebase.
-         */
         @JavascriptInterface
         public String loadData() {
 
@@ -165,17 +140,14 @@ public class MainActivity extends Activity {
 
                                 localData = json;
 
-                                /*
-                                 * إرسال البيانات الجديدة إلى index.html
-                                 */
                                 final String safeJson =
                                         escapeForJavaScript(json);
 
                                 runOnUiThread(() -> {
 
                                     webView.evaluateJavascript(
-                                            "if(typeof onCloudDataLoaded === 'function')" +
-                                            "{onCloudDataLoaded(" +
+                                            "if(typeof loadCloudData === 'function')" +
+                                            "{loadCloudData(" +
                                             safeJson +
                                             ");}",
                                             null
@@ -187,24 +159,19 @@ public class MainActivity extends Activity {
 
                     })
                     .addOnFailureListener(e -> {
-                        // نترك البيانات المحلية كما هي
+
+                        // الاحتفاظ بالبيانات المحلية عند فشل التحميل
+
                     });
 
             return localData;
         }
 
-
-        /*
-         * الحصول على UID الخاص بالمستخدم الحالي
-         *
-         * index.html يستدعي:
-         *
-         * AndroidFirebase.getUserUid()
-         */
         @JavascriptInterface
         public String getUserUid() {
 
-            FirebaseUser user = firebaseAuth.getCurrentUser();
+            FirebaseUser user =
+                    firebaseAuth.getCurrentUser();
 
             if (user != null) {
                 return user.getUid();
@@ -213,14 +180,11 @@ public class MainActivity extends Activity {
             return "";
         }
 
-
-        /*
-         * الحصول على البريد الإلكتروني للمستخدم الحالي
-         */
         @JavascriptInterface
         public String getUserEmail() {
 
-            FirebaseUser user = firebaseAuth.getCurrentUser();
+            FirebaseUser user =
+                    firebaseAuth.getCurrentUser();
 
             if (user != null && user.getEmail() != null) {
                 return user.getEmail();
@@ -229,14 +193,11 @@ public class MainActivity extends Activity {
             return "";
         }
 
-
-        /*
-         * الحصول على اسم المستخدم
-         */
         @JavascriptInterface
         public String getUserName() {
 
-            FirebaseUser user = firebaseAuth.getCurrentUser();
+            FirebaseUser user =
+                    firebaseAuth.getCurrentUser();
 
             if (user != null && user.getDisplayName() != null) {
                 return user.getDisplayName();
@@ -245,10 +206,6 @@ public class MainActivity extends Activity {
             return "";
         }
 
-
-        /*
-         * تسجيل الخروج
-         */
         @JavascriptInterface
         public void logout() {
 
@@ -263,23 +220,16 @@ public class MainActivity extends Activity {
                 ).show();
 
                 webView.reload();
+
             });
         }
 
-
-        /*
-         * فحص هل يوجد مستخدم مسجل دخول
-         */
         @JavascriptInterface
         public boolean isLoggedIn() {
 
             return firebaseAuth.getCurrentUser() != null;
         }
 
-
-        /*
-         * عرض رسالة من JavaScript
-         */
         @JavascriptInterface
         public void showMessage(String message) {
 
@@ -294,11 +244,6 @@ public class MainActivity extends Activity {
             });
         }
     }
-
-
-    // =========================================================
-    // حماية النص قبل إرساله إلى JavaScript
-    // =========================================================
 
     private String escapeForJavaScript(String value) {
 
@@ -319,11 +264,6 @@ public class MainActivity extends Activity {
         return "\"" + escaped + "\"";
     }
 
-
-    // =========================================================
-    // زر الرجوع
-    // =========================================================
-
     @Override
     public void onBackPressed() {
 
@@ -334,13 +274,9 @@ public class MainActivity extends Activity {
         } else {
 
             super.onBackPressed();
+
         }
     }
-
-
-    // =========================================================
-    // تنظيف WebView
-    // =========================================================
 
     @Override
     protected void onDestroy() {
@@ -351,6 +287,7 @@ public class MainActivity extends Activity {
             webView.setWebViewClient(null);
             webView.destroy();
             webView = null;
+
         }
 
         super.onDestroy();

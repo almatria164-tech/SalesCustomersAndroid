@@ -2,25 +2,46 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-        android:layout_height="match_parent"
-            android:orientation="vertical"
-                android:gravity="center"
-                    android:padding="24dp"
-                        android:layoutDirection="rtl">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="top"
+    android:layoutDirection="rtl">
 
-                            <TextView
-                                    android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
-                                                    android:text="تسجيل الدخول"
-                                                            android:textSize="28sp"
-                                                                    android:textStyle="bold"
-                                                                            android:layout_marginBottom="30dp" />
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="البريد الإلكتروني"
+        android:textSize="16sp"
+        android:gravity="right|center_vertical"
+        android:inputType="textEmailAddress"
+        android:backgroundTint="#008577" />
 
-                                                                                <Button
-                                                                                        android:id="@+id/googleSignInButton"
-                                                                                                android:layout_width="match_parent"
-                                                                                                        android:layout_height="wrap_content"
-                                                                                                                android:text="تسجيل الدخول باستخدام Google"
-                                                                                                                        android:textSize="17sp" />
+    <EditText
+        android:id="@+id/passwordEditText"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="كلمة المرور"
+        android:textSize="16sp"
+        android:gravity="right|center_vertical"
+        android:inputType="textPassword"
+        android:backgroundTint="#999999" />
 
-                                                                                                                        </LinearLayout>
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="15dp"
+        android:text="تسجيل الدخول"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:text="إنشاء حساب جديد"
+        android:textSize="16sp" />
+
+</LinearLayout>

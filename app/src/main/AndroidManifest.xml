@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Internet for Firebase / Firestore / Google Login -->
+    <uses-permission
+        android:name="android.permission.INTERNET" />
 
     <application
         android:theme="@style/Theme.SalesCustomers"
@@ -9,19 +14,24 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="false">
 
+        <!-- Main Application -->
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
 
+        <!-- Login Screen -->
         <activity
             android:name=".LoginActivity"
-            android:screenOrientation="portrait"
             android:exported="true">
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+
+                <action
+                    android:name="android.intent.action.MAIN" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+
             </intent-filter>
 
         </activity>

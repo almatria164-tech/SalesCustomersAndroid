@@ -16,7 +16,7 @@ import androidx.credentials.CustomCredential;
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -96,7 +96,8 @@ public class LoginActivity extends AppCompatActivity {
                         String message = "فشل تسجيل الدخول";
 
                         if (task.getException() != null) {
-                            message += "\n" + task.getException().getMessage();
+                            message += "\n" +
+                                    task.getException().getMessage();
                         }
 
                         Toast.makeText(
@@ -148,8 +149,8 @@ public class LoginActivity extends AppCompatActivity {
                         String message = "تعذر إنشاء الحساب";
 
                         if (task.getException() != null) {
-                            message += "\n"
-                                    + task.getException().getMessage();
+                            message += "\n" +
+                                    task.getException().getMessage();
                         }
 
                         Toast.makeText(
@@ -165,22 +166,19 @@ public class LoginActivity extends AppCompatActivity {
 
         Toast.makeText(
                 this,
-                "جاري فتح حساب Google...",
+                "جاري فتح تسجيل الدخول باستخدام Google...",
                 Toast.LENGTH_SHORT
         ).show();
 
-        GetGoogleIdOption googleIdOption =
-                new GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(
-                                getString(R.string.default_web_client_id)
-                        )
-                        .setAutoSelectEnabled(false)
-                        .build();
+        GetSignInWithGoogleOption googleOption =
+                new GetSignInWithGoogleOption.Builder(
+                        getString(R.string.default_web_client_id)
+                )
+                .build();
 
         GetCredentialRequest request =
                 new GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
+                        .addCredentialOption(googleOption)
                         .build();
 
         credentialManager.getCredentialAsync(
@@ -228,40 +226,52 @@ public class LoginActivity extends AppCompatActivity {
             Credential credential
     ) {
 
-        if (credential instanceof CustomCredential) {
-
-            CustomCredential customCredential =
-                    (CustomCredential) credential;
-
-            if (GoogleIdTokenCredential
-                    .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                    .equals(customCredential.getType())) {
-
-                GoogleIdTokenCredential
-                        googleIdTokenCredential =
-                        GoogleIdTokenCredential.createFrom(
-                                customCredential.getData()
-                        );
-
-                String idToken =
-                        googleIdTokenCredential.getIdToken();
-
-                firebaseAuthWithGoogle(idToken);
-
-            } else {
-
-                Toast.makeText(
-                        LoginActivity.this,
-                        "بيانات Google غير صحيحة",
-                        Toast.LENGTH_LONG
-                ).show();
-            }
-
-        } else {
+        if (!(credential instanceof CustomCredential)) {
 
             Toast.makeText(
                     LoginActivity.this,
-                    "لم يتم اختيار حساب Google",
+                    "لم يتم الحصول على بيانات حساب Google",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        CustomCredential customCredential =
+                (CustomCredential) credential;
+
+        if (!GoogleIdTokenCredential
+                .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                .equals(customCredential.getType())) {
+
+            Toast.makeText(
+                    LoginActivity.this,
+                    "بيانات Google غير صحيحة",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        try {
+
+            GoogleIdTokenCredential
+                    googleIdTokenCredential =
+                    GoogleIdTokenCredential.createFrom(
+                            customCredential.getData()
+                    );
+
+            String idToken =
+                    googleIdTokenCredential.getIdToken();
+
+            firebaseAuthWithGoogle(idToken);
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    LoginActivity.this,
+                    "تعذر قراءة بيانات Google\n"
+                            + e.getMessage(),
                     Toast.LENGTH_LONG
             ).show();
         }
@@ -298,9 +308,9 @@ public class LoginActivity extends AppCompatActivity {
                                         "فشل تسجيل الدخول باستخدام Google";
 
                                 if (task.getException() != null) {
-                                    message += "\n"
-                                            + task.getException()
-                                            .getMessage();
+                                    message += "\n" +
+                                            task.getException()
+                                                    .getMessage();
                                 }
 
                                 Toast.makeText(

@@ -14,10 +14,8 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -187,18 +185,10 @@ public class LoginActivity extends AppCompatActivity {
             String webClientId =
                     getString(R.string.default_web_client_id);
 
-            /*
-             * نستخدم GetSignInWithGoogleOption مباشرة.
-             *
-             * هذا يسمح للمستخدم باختيار حساب Google
-             * حتى لو لم يكن قد استخدم التطبيق من قبل.
-             */
-
             GetSignInWithGoogleOption googleOption =
                     new GetSignInWithGoogleOption.Builder(
                             webClientId
-                    )
-                            .build();
+                    ).build();
 
             GetCredentialRequest request =
                     new GetCredentialRequest.Builder()
@@ -231,8 +221,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 googleButton.setEnabled(true);
 
-                                String message =
-                                        e.getMessage();
+                                String message = e.getMessage();
 
                                 if (message == null ||
                                         message.trim().isEmpty()) {
@@ -284,28 +273,21 @@ public class LoginActivity extends AppCompatActivity {
                     .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                     .equals(customCredential.getType())) {
 
-                try {
+                /*
+                 * إنشاء GoogleIdTokenCredential
+                 * بدون catch للاستثناء الذي كان يسبب
+                 * فشل عملية البناء.
+                 */
 
-                    GoogleIdTokenCredential
-                            googleCredential =
-                            GoogleIdTokenCredential
-                                    .createFrom(
-                                            customCredential.getData()
-                                    );
+                GoogleIdTokenCredential googleCredential =
+                        GoogleIdTokenCredential.createFrom(
+                                customCredential.getData()
+                        );
 
-                    String idToken =
-                            googleCredential.getIdToken();
+                String idToken =
+                        googleCredential.getIdToken();
 
-                    firebaseAuthWithGoogle(idToken);
-
-                } catch (GoogleIdTokenParsingException e) {
-
-                    Toast.makeText(
-                            this,
-                            "تعذر قراءة بيانات حساب Google",
-                            Toast.LENGTH_LONG
-                    ).show();
-                }
+                firebaseAuthWithGoogle(idToken);
 
             } else {
 

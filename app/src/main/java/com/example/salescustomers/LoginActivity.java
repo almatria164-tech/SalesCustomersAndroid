@@ -71,9 +71,9 @@ public class LoginActivity extends AppCompatActivity {
         googleButton.setOnClickListener(v -> signInWithGoogle());
     }
 
-    // =========================
-    // تسجيل الدخول بالبريد
-    // =========================
+    // =========================================================
+    // تسجيل الدخول بالبريد الإلكتروني
+    // =========================================================
 
     private void login() {
 
@@ -126,9 +126,9 @@ public class LoginActivity extends AppCompatActivity {
                 );
     }
 
-    // =========================
-    // إنشاء حساب
-    // =========================
+    // =========================================================
+    // إنشاء حساب بالبريد الإلكتروني
+    // =========================================================
 
     private void register() {
 
@@ -194,9 +194,9 @@ public class LoginActivity extends AppCompatActivity {
                 );
     }
 
-    // =========================
+    // =========================================================
     // تسجيل الدخول باستخدام Google
-    // =========================
+    // =========================================================
 
     private void signInWithGoogle() {
 
@@ -207,133 +207,90 @@ public class LoginActivity extends AppCompatActivity {
         ).show();
 
         /*
-         * أول محاولة:
-         * نطلب الحسابات المصرح بها سابقًا.
+         * نستخدم الحسابات غير المصرح بها أيضًا.
+         *
+         * هذا مهم لأن الخطأ السابق كان:
+         *
+         * No credentials available
+         *
+         * أي أن Credential Manager لم يجد حسابًا
+         * مصرحًا به سابقًا للتطبيق.
          */
 
-        GetGoogleIdOption googleIdOption =
-                new GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(true)
-                        .setServerClientId(
-                                getString(
-                                        R.string.default_web_client_id
-                                )
-                        )
-                        .setAutoSelectEnabled(false)
-                        .build();
+        try {
 
-        GetCredentialRequest request =
-                new GetCredentialRequest.Builder()
-                        .addCredentialOption(
-                                googleIdOption
-                        )
-                        .build();
+            GetGoogleIdOption googleIdOption =
+                    new GetGoogleIdOption.Builder()
+                            .setFilterByAuthorizedAccounts(false)
+                            .setServerClientId(
+                                    getString(
+                                            R.string.default_web_client_id
+                                    )
+                            )
+                            .setAutoSelectEnabled(false)
+                            .build();
 
-        credentialManager.getCredentialAsync(
-                this,
-                request,
-                new CancellationSignal(),
-                Executors.newSingleThreadExecutor(),
+            GetCredentialRequest request =
+                    new GetCredentialRequest.Builder()
+                            .addCredentialOption(
+                                    googleIdOption
+                            )
+                            .build();
 
-                new CredentialManagerCallback<
-                        GetCredentialResponse,
-                        androidx.credentials.exceptions.GetCredentialException>() {
+            credentialManager.getCredentialAsync(
+                    this,
+                    request,
+                    new CancellationSignal(),
+                    Executors.newSingleThreadExecutor(),
 
-                    @Override
-                    public void onResult(
-                            GetCredentialResponse result
-                    ) {
+                    new CredentialManagerCallback<
+                            GetCredentialResponse,
+                            androidx.credentials.exceptions.GetCredentialException>() {
 
-                        runOnUiThread(() ->
-                                handleGoogleCredential(
-                                        result.getCredential()
-                                )
-                        );
+                        @Override
+                        public void onResult(
+                                GetCredentialResponse result
+                        ) {
+
+                            runOnUiThread(() ->
+                                    handleGoogleCredential(
+                                            result.getCredential()
+                                    )
+                            );
+                        }
+
+                        @Override
+                        public void onError(
+                                @NonNull
+                                androidx.credentials.exceptions.GetCredentialException e
+                        ) {
+
+                            /*
+                             * إذا لم يعمل المسار الأول،
+                             * نستخدم مسار زر Google الرسمي.
+                             */
+
+                            runOnUiThread(() ->
+                                    signInWithGoogleButtonFlow()
+                            );
+                        }
                     }
+            );
 
-                    @Override
-                    public void onError(
-                            @NonNull
-                            androidx.credentials.exceptions.GetCredentialException e
-                    ) {
+        } catch (Exception e) {
 
-                        /*
-                         * إذا لم توجد بيانات اعتماد،
-                         * ننتقل للمحاولة الثانية
-                         * التي تسمح بكل حسابات Google.
-                         */
-
-                        runOnUiThread(() ->
-                                signInWithGoogleAllAccounts()
-                        );
-                    }
-                }
-        );
+            Toast.makeText(
+                    LoginActivity.this,
+                    "تعذر فتح تسجيل الدخول باستخدام Google\n"
+                            + e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
     }
 
-    // =========================
-    // محاولة Google بكل الحسابات
-    // =========================
-
-    private void signInWithGoogleAllAccounts() {
-
-        GetGoogleIdOption googleIdOption =
-                new GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(
-                                getString(
-                                        R.string.default_web_client_id
-                                )
-                        )
-                        .setAutoSelectEnabled(false)
-                        .build();
-
-        GetCredentialRequest request =
-                new GetCredentialRequest.Builder()
-                        .addCredentialOption(
-                                googleIdOption
-                        )
-                        .build();
-
-        credentialManager.getCredentialAsync(
-                this,
-                request,
-                new CancellationSignal(),
-                Executors.newSingleThreadExecutor(),
-
-                new CredentialManagerCallback<
-                        GetCredentialResponse,
-                        androidx.credentials.exceptions.GetCredentialException>() {
-
-                    @Override
-                    public void onResult(
-                            GetCredentialResponse result
-                    ) {
-
-                        runOnUiThread(() ->
-                                handleGoogleCredential(
-                                        result.getCredential()
-                                )
-                        );
-                    }
-
-                    @Override
-                    public void onError(
-                            @NonNull
-                            androidx.credentials.exceptions.GetCredentialException e
-                    ) {
-
-                        runOnUiThread(() ->
-                                signInWithGoogleButtonFlow()
-                        );
-                    }
-                }
-        );
-    }
-
-    // =========================
+    // =========================================================
     // مسار زر Google الرسمي
-    // =========================
+    // =========================================================
 
     private void signInWithGoogleButtonFlow() {
 
@@ -406,9 +363,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // =========================
-    // معالجة Google Credential
-    // =========================
+    // =========================================================
+    // معالجة بيانات Google
+    // =========================================================
 
     private void handleGoogleCredential(
             Credential credential
@@ -479,9 +436,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // =========================
-    // ربط Google مع Firebase
-    // =========================
+    // =========================================================
+    // تسجيل Google في Firebase
+    // =========================================================
 
     private void firebaseAuthWithGoogle(
             String idToken
@@ -531,9 +488,9 @@ public class LoginActivity extends AppCompatActivity {
                 );
     }
 
-    // =========================
+    // =========================================================
     // فتح التطبيق الرئيسي
-    // =========================
+    // =========================================================
 
     private void openMainActivity() {
 

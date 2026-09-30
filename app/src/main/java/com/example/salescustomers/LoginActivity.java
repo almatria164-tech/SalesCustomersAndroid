@@ -16,8 +16,10 @@ import androidx.credentials.CustomCredential;
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -69,10 +71,17 @@ public class LoginActivity extends AppCompatActivity {
         googleButton.setOnClickListener(v -> signInWithGoogle());
     }
 
+    // =========================
+    // تسجيل الدخول بالبريد
+    // =========================
+
     private void login() {
 
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
+        String email =
+                emailEditText.getText().toString().trim();
+
+        String password =
+                passwordEditText.getText().toString().trim();
 
         if (email.isEmpty()) {
             emailEditText.setError("أدخل البريد الإلكتروني");
@@ -84,35 +93,50 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+        mAuth.signInWithEmailAndPassword(
+                        email,
+                        password
+                )
+                .addOnCompleteListener(
+                        this,
+                        task -> {
 
-                    if (task.isSuccessful()) {
+                            if (task.isSuccessful()) {
 
-                        openMainActivity();
+                                openMainActivity();
 
-                    } else {
+                            } else {
 
-                        String message = "فشل تسجيل الدخول";
+                                String message =
+                                        "فشل تسجيل الدخول";
 
-                        if (task.getException() != null) {
-                            message += "\n" +
-                                    task.getException().getMessage();
+                                if (task.getException() != null) {
+                                    message += "\n"
+                                            + task.getException()
+                                            .getMessage();
+                                }
+
+                                Toast.makeText(
+                                        LoginActivity.this,
+                                        message,
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            }
                         }
-
-                        Toast.makeText(
-                                LoginActivity.this,
-                                message,
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                });
+                );
     }
+
+    // =========================
+    // إنشاء حساب
+    // =========================
 
     private void register() {
 
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
+        String email =
+                emailEditText.getText().toString().trim();
+
+        String password =
+                passwordEditText.getText().toString().trim();
 
         if (email.isEmpty()) {
             emailEditText.setError("أدخل البريد الإلكتروني");
@@ -131,36 +155,48 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+        mAuth.createUserWithEmailAndPassword(
+                        email,
+                        password
+                )
+                .addOnCompleteListener(
+                        this,
+                        task -> {
 
-                    if (task.isSuccessful()) {
+                            if (task.isSuccessful()) {
 
-                        Toast.makeText(
-                                LoginActivity.this,
-                                "تم إنشاء الحساب بنجاح",
-                                Toast.LENGTH_LONG
-                        ).show();
+                                Toast.makeText(
+                                        LoginActivity.this,
+                                        "تم إنشاء الحساب بنجاح",
+                                        Toast.LENGTH_LONG
+                                ).show();
 
-                        openMainActivity();
+                                openMainActivity();
 
-                    } else {
+                            } else {
 
-                        String message = "تعذر إنشاء الحساب";
+                                String message =
+                                        "تعذر إنشاء الحساب";
 
-                        if (task.getException() != null) {
-                            message += "\n" +
-                                    task.getException().getMessage();
+                                if (task.getException() != null) {
+                                    message += "\n"
+                                            + task.getException()
+                                            .getMessage();
+                                }
+
+                                Toast.makeText(
+                                        LoginActivity.this,
+                                        message,
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            }
                         }
-
-                        Toast.makeText(
-                                LoginActivity.this,
-                                message,
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                });
+                );
     }
+
+    // =========================
+    // تسجيل الدخول باستخدام Google
+    // =========================
 
     private void signInWithGoogle() {
 
@@ -170,15 +206,27 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.LENGTH_SHORT
         ).show();
 
-        GetSignInWithGoogleOption googleOption =
-                new GetSignInWithGoogleOption.Builder(
-                        getString(R.string.default_web_client_id)
-                )
-                .build();
+        /*
+         * أول محاولة:
+         * نطلب الحسابات المصرح بها سابقًا.
+         */
+
+        GetGoogleIdOption googleIdOption =
+                new GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(true)
+                        .setServerClientId(
+                                getString(
+                                        R.string.default_web_client_id
+                                )
+                        )
+                        .setAutoSelectEnabled(false)
+                        .build();
 
         GetCredentialRequest request =
                 new GetCredentialRequest.Builder()
-                        .addCredentialOption(googleOption)
+                        .addCredentialOption(
+                                googleIdOption
+                        )
                         .build();
 
         credentialManager.getCredentialAsync(
@@ -186,6 +234,7 @@ public class LoginActivity extends AppCompatActivity {
                 request,
                 new CancellationSignal(),
                 Executors.newSingleThreadExecutor(),
+
                 new CredentialManagerCallback<
                         GetCredentialResponse,
                         androidx.credentials.exceptions.GetCredentialException>() {
@@ -208,19 +257,158 @@ public class LoginActivity extends AppCompatActivity {
                             androidx.credentials.exceptions.GetCredentialException e
                     ) {
 
-                        runOnUiThread(() -> {
+                        /*
+                         * إذا لم توجد بيانات اعتماد،
+                         * ننتقل للمحاولة الثانية
+                         * التي تسمح بكل حسابات Google.
+                         */
 
-                            Toast.makeText(
-                                    LoginActivity.this,
-                                    "تعذر تسجيل الدخول باستخدام Google\n"
-                                            + e.getMessage(),
-                                    Toast.LENGTH_LONG
-                            ).show();
-                        });
+                        runOnUiThread(() ->
+                                signInWithGoogleAllAccounts()
+                        );
                     }
                 }
         );
     }
+
+    // =========================
+    // محاولة Google بكل الحسابات
+    // =========================
+
+    private void signInWithGoogleAllAccounts() {
+
+        GetGoogleIdOption googleIdOption =
+                new GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(false)
+                        .setServerClientId(
+                                getString(
+                                        R.string.default_web_client_id
+                                )
+                        )
+                        .setAutoSelectEnabled(false)
+                        .build();
+
+        GetCredentialRequest request =
+                new GetCredentialRequest.Builder()
+                        .addCredentialOption(
+                                googleIdOption
+                        )
+                        .build();
+
+        credentialManager.getCredentialAsync(
+                this,
+                request,
+                new CancellationSignal(),
+                Executors.newSingleThreadExecutor(),
+
+                new CredentialManagerCallback<
+                        GetCredentialResponse,
+                        androidx.credentials.exceptions.GetCredentialException>() {
+
+                    @Override
+                    public void onResult(
+                            GetCredentialResponse result
+                    ) {
+
+                        runOnUiThread(() ->
+                                handleGoogleCredential(
+                                        result.getCredential()
+                                )
+                        );
+                    }
+
+                    @Override
+                    public void onError(
+                            @NonNull
+                            androidx.credentials.exceptions.GetCredentialException e
+                    ) {
+
+                        runOnUiThread(() ->
+                                signInWithGoogleButtonFlow()
+                        );
+                    }
+                }
+        );
+    }
+
+    // =========================
+    // مسار زر Google الرسمي
+    // =========================
+
+    private void signInWithGoogleButtonFlow() {
+
+        try {
+
+            GetSignInWithGoogleOption googleOption =
+                    new GetSignInWithGoogleOption.Builder(
+                            getString(
+                                    R.string.default_web_client_id
+                            )
+                    )
+                    .build();
+
+            GetCredentialRequest request =
+                    new GetCredentialRequest.Builder()
+                            .addCredentialOption(
+                                    googleOption
+                            )
+                            .build();
+
+            credentialManager.getCredentialAsync(
+                    this,
+                    request,
+                    new CancellationSignal(),
+                    Executors.newSingleThreadExecutor(),
+
+                    new CredentialManagerCallback<
+                            GetCredentialResponse,
+                            androidx.credentials.exceptions.GetCredentialException>() {
+
+                        @Override
+                        public void onResult(
+                                GetCredentialResponse result
+                        ) {
+
+                            runOnUiThread(() ->
+                                    handleGoogleCredential(
+                                            result.getCredential()
+                                    )
+                            );
+                        }
+
+                        @Override
+                        public void onError(
+                                @NonNull
+                                androidx.credentials.exceptions.GetCredentialException e
+                        ) {
+
+                            runOnUiThread(() -> {
+
+                                Toast.makeText(
+                                        LoginActivity.this,
+                                        "تعذر تسجيل الدخول باستخدام Google\n"
+                                                + e.getMessage(),
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            });
+                        }
+                    }
+            );
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    LoginActivity.this,
+                    "حدث خطأ في Google\n"
+                            + e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    }
+
+    // =========================
+    // معالجة Google Credential
+    // =========================
 
     private void handleGoogleCredential(
             Credential credential
@@ -242,7 +430,9 @@ public class LoginActivity extends AppCompatActivity {
 
         if (!GoogleIdTokenCredential
                 .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                .equals(customCredential.getType())) {
+                .equals(
+                        customCredential.getType()
+                )) {
 
             Toast.makeText(
                     LoginActivity.this,
@@ -264,6 +454,18 @@ public class LoginActivity extends AppCompatActivity {
             String idToken =
                     googleIdTokenCredential.getIdToken();
 
+            if (idToken == null ||
+                    idToken.trim().isEmpty()) {
+
+                Toast.makeText(
+                        LoginActivity.this,
+                        "لم يتم الحصول على Google ID Token",
+                        Toast.LENGTH_LONG
+                ).show();
+
+                return;
+            }
+
             firebaseAuthWithGoogle(idToken);
 
         } catch (Exception e) {
@@ -277,6 +479,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // =========================
+    // ربط Google مع Firebase
+    // =========================
+
     private void firebaseAuthWithGoogle(
             String idToken
     ) {
@@ -287,7 +493,9 @@ public class LoginActivity extends AppCompatActivity {
                         null
                 );
 
-        mAuth.signInWithCredential(credential)
+        mAuth.signInWithCredential(
+                        credential
+                )
                 .addOnCompleteListener(
                         this,
                         task -> {
@@ -308,9 +516,9 @@ public class LoginActivity extends AppCompatActivity {
                                         "فشل تسجيل الدخول باستخدام Google";
 
                                 if (task.getException() != null) {
-                                    message += "\n" +
-                                            task.getException()
-                                                    .getMessage();
+                                    message += "\n"
+                                            + task.getException()
+                                            .getMessage();
                                 }
 
                                 Toast.makeText(
@@ -322,6 +530,10 @@ public class LoginActivity extends AppCompatActivity {
                         }
                 );
     }
+
+    // =========================
+    // فتح التطبيق الرئيسي
+    // =========================
 
     private void openMainActivity() {
 

@@ -15,11 +15,9 @@ import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
@@ -63,9 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser != null) {
+        if (mAuth.getCurrentUser() != null) {
             openMainActivity();
         }
     }
@@ -145,12 +141,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginWithGoogle() {
 
-        googleButton.setEnabled(false);
-
         if (webClientId == null ||
                 webClientId.trim().isEmpty()) {
-
-            googleButton.setEnabled(true);
 
             Toast.makeText(
                     this,
@@ -161,91 +153,34 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        googleButton.setEnabled(false);
+
         /*
-         * أول محاولة:
-         * استخدام زر تسجيل الدخول مع Google مباشرة.
+         * مهم:
          *
-         * هذا هو المسار المناسب عندما يريد المستخدم
-         * اختيار حساب Google.
+         * نستخدم GetGoogleIdOption مباشرة.
+         *
+         * setFilterByAuthorizedAccounts(false)
+         * يسمح بعرض حساب Google حتى لو لم يستخدم
+         * هذا الحساب التطبيق من قبل.
+         *
+         * وهذا يعالج حالة:
+         * No credentials available
          */
-        try {
 
-            GetSignInWithGoogleOption googleOption =
-                    new GetSignInWithGoogleOption.Builder(
-                            webClientId
-                    ).build();
+        GetGoogleIdOption googleIdOption =
+                new GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(false)
+                        .setServerClientId(webClientId)
+                        .setAutoSelectEnabled(false)
+                        .build();
 
-            GetCredentialRequest request =
-                    new GetCredentialRequest.Builder()
-                            .addCredentialOption(googleOption)
-                            .build();
-
-            credentialManager.getCredentialAsync(
-                    this,
-                    request,
-                    null,
-                    Runnable::run,
-                    new androidx.credentials.CredentialManagerCallback<
-                            GetCredentialResponse,
-                            GetCredentialException>() {
-
-                        @Override
-                        public void onResult(
-                                GetCredentialResponse result) {
-
-                            runOnUiThread(() ->
-                                    handleGoogleCredential(result)
-                            );
-                        }
-
-                        @Override
-                        public void onError(
-                                GetCredentialException e) {
-
-                            /*
-                             * إذا لم توجد بيانات اعتماد،
-                             * نجرب مسار Google ID المعتاد
-                             * مع السماح بجميع حسابات الجهاز.
-                             */
-                            runOnUiThread(() ->
-                                    tryGoogleAccounts()
-                            );
-                        }
-                    }
-            );
-
-        } catch (Exception e) {
-
-            tryGoogleAccounts();
-        }
-    }
-
-    private void tryGoogleAccounts() {
+        GetCredentialRequest request =
+                new GetCredentialRequest.Builder()
+                        .addCredentialOption(googleIdOption)
+                        .build();
 
         try {
-
-            /*
-             * مهم:
-             *
-             * setFilterByAuthorizedAccounts(false)
-             *
-             * يسمح بعرض حساب Google حتى لو لم يستخدم
-             * التطبيق هذا الحساب من قبل.
-             *
-             * هذا يعالج حالة:
-             * No credentials available
-             */
-            GetGoogleIdOption googleIdOption =
-                    new GetGoogleIdOption.Builder()
-                            .setFilterByAuthorizedAccounts(false)
-                            .setServerClientId(webClientId)
-                            .setAutoSelectEnabled(false)
-                            .build();
-
-            GetCredentialRequest request =
-                    new GetCredentialRequest.Builder()
-                            .addCredentialOption(googleIdOption)
-                            .build();
 
             credentialManager.getCredentialAsync(
                     this,
@@ -273,19 +208,9 @@ public class LoginActivity extends AppCompatActivity {
 
                                 googleButton.setEnabled(true);
 
-                                String message =
-                                        e.getMessage();
-
-                                if (message == null ||
-                                        message.trim().isEmpty()) {
-
-                                    message =
-                                            "تعذر تسجيل الدخول باستخدام Google";
-                                }
-
                                 Toast.makeText(
                                         LoginActivity.this,
-                                        message,
+                                        "تعذر اختيار حساب Google. تأكد من وجود حساب Google على الجهاز ثم حاول مرة أخرى.",
                                         Toast.LENGTH_LONG
                                 ).show();
                             });
@@ -308,10 +233,10 @@ public class LoginActivity extends AppCompatActivity {
     private void handleGoogleCredential(
             GetCredentialResponse result) {
 
-        googleButton.setEnabled(true);
-
         if (result == null ||
                 result.getCredential() == null) {
+
+            googleButton.setEnabled(true);
 
             Toast.makeText(
                     this,
@@ -326,6 +251,8 @@ public class LoginActivity extends AppCompatActivity {
                 result.getCredential();
 
         if (!(credential instanceof CustomCredential)) {
+
+            googleButton.setEnabled(true);
 
             Toast.makeText(
                     this,
@@ -342,6 +269,8 @@ public class LoginActivity extends AppCompatActivity {
         if (!GoogleIdTokenCredential
                 .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                 .equals(customCredential.getType())) {
+
+            googleButton.setEnabled(true);
 
             Toast.makeText(
                     this,
@@ -365,6 +294,8 @@ public class LoginActivity extends AppCompatActivity {
             if (idToken == null ||
                     idToken.trim().isEmpty()) {
 
+                googleButton.setEnabled(true);
+
                 Toast.makeText(
                         this,
                         "لم يتم الحصول على رمز Google",
@@ -377,6 +308,8 @@ public class LoginActivity extends AppCompatActivity {
             firebaseAuthWithGoogle(idToken);
 
         } catch (Exception e) {
+
+            googleButton.setEnabled(true);
 
             Toast.makeText(
                     this,
@@ -399,6 +332,8 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(
                         this,
                         task -> {
+
+                            googleButton.setEnabled(true);
 
                             if (task.isSuccessful()) {
 

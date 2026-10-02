@@ -14,6 +14,7 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
@@ -33,6 +34,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button registerButton;
     private Button googleButton;
 
+    private String webClientId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +44,8 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         credentialManager = CredentialManager.create(this);
+
+        webClientId = getString(R.string.default_web_client_id);
 
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
@@ -90,7 +95,10 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         openMainActivity();
                     } else {
-                        showError(task.getException(), "تعذر تسجيل الدخول");
+                        showError(
+                                task.getException(),
+                                "تعذر تسجيل الدخول"
+                        );
                     }
                 });
     }
@@ -139,10 +147,28 @@ public class LoginActivity extends AppCompatActivity {
 
         googleButton.setEnabled(false);
 
-        try {
+        if (webClientId == null ||
+                webClientId.trim().isEmpty()) {
 
-            String webClientId =
-                    getString(R.string.default_web_client_id);
+            googleButton.setEnabled(true);
+
+            Toast.makeText(
+                    this,
+                    "معرّف Google غير موجود في إعدادات التطبيق",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        /*
+         * أول محاولة:
+         * استخدام زر تسجيل الدخول مع Google مباشرة.
+         *
+         * هذا هو المسار المناسب عندما يريد المستخدم
+         * اختيار حساب Google.
+         */
+        try {
 
             GetSignInWithGoogleOption googleOption =
                     new GetSignInWithGoogleOption.Builder(
@@ -176,11 +202,79 @@ public class LoginActivity extends AppCompatActivity {
                         public void onError(
                                 GetCredentialException e) {
 
+                            /*
+                             * إذا لم توجد بيانات اعتماد،
+                             * نجرب مسار Google ID المعتاد
+                             * مع السماح بجميع حسابات الجهاز.
+                             */
+                            runOnUiThread(() ->
+                                    tryGoogleAccounts()
+                            );
+                        }
+                    }
+            );
+
+        } catch (Exception e) {
+
+            tryGoogleAccounts();
+        }
+    }
+
+    private void tryGoogleAccounts() {
+
+        try {
+
+            /*
+             * مهم:
+             *
+             * setFilterByAuthorizedAccounts(false)
+             *
+             * يسمح بعرض حساب Google حتى لو لم يستخدم
+             * التطبيق هذا الحساب من قبل.
+             *
+             * هذا يعالج حالة:
+             * No credentials available
+             */
+            GetGoogleIdOption googleIdOption =
+                    new GetGoogleIdOption.Builder()
+                            .setFilterByAuthorizedAccounts(false)
+                            .setServerClientId(webClientId)
+                            .setAutoSelectEnabled(false)
+                            .build();
+
+            GetCredentialRequest request =
+                    new GetCredentialRequest.Builder()
+                            .addCredentialOption(googleIdOption)
+                            .build();
+
+            credentialManager.getCredentialAsync(
+                    this,
+                    request,
+                    null,
+                    Runnable::run,
+                    new androidx.credentials.CredentialManagerCallback<
+                            GetCredentialResponse,
+                            GetCredentialException>() {
+
+                        @Override
+                        public void onResult(
+                                GetCredentialResponse result) {
+
+                            runOnUiThread(() ->
+                                    handleGoogleCredential(result)
+                            );
+                        }
+
+                        @Override
+                        public void onError(
+                                GetCredentialException e) {
+
                             runOnUiThread(() -> {
 
                                 googleButton.setEnabled(true);
 
-                                String message = e.getMessage();
+                                String message =
+                                        e.getMessage();
 
                                 if (message == null ||
                                         message.trim().isEmpty()) {
@@ -216,7 +310,20 @@ public class LoginActivity extends AppCompatActivity {
 
         googleButton.setEnabled(true);
 
-        Credential credential = result.getCredential();
+        if (result == null ||
+                result.getCredential() == null) {
+
+            Toast.makeText(
+                    this,
+                    "لم يتم اختيار حساب Google",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        Credential credential =
+                result.getCredential();
 
         if (!(credential instanceof CustomCredential)) {
 
@@ -255,6 +362,18 @@ public class LoginActivity extends AppCompatActivity {
             String idToken =
                     googleCredential.getIdToken();
 
+            if (idToken == null ||
+                    idToken.trim().isEmpty()) {
+
+                Toast.makeText(
+                        this,
+                        "لم يتم الحصول على رمز Google",
+                        Toast.LENGTH_LONG
+                ).show();
+
+                return;
+            }
+
             firebaseAuthWithGoogle(idToken);
 
         } catch (Exception e) {
@@ -267,7 +386,8 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void firebaseAuthWithGoogle(String idToken) {
+    private void firebaseAuthWithGoogle(
+            String idToken) {
 
         AuthCredential credential =
                 GoogleAuthProvider.getCredential(
@@ -332,4 +452,4 @@ public class LoginActivity extends AppCompatActivity {
 
         finish();
     }
-    }
+}

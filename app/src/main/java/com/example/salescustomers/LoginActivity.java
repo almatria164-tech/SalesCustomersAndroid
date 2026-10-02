@@ -41,20 +41,39 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-        credentialManager = CredentialManager.create(this);
 
-        webClientId = getString(R.string.default_web_client_id);
+        credentialManager =
+                CredentialManager.create(this);
 
-        emailEditText = findViewById(R.id.emailEditText);
-        passwordEditText = findViewById(R.id.passwordEditText);
+        webClientId =
+                getString(R.string.default_web_client_id);
 
-        loginButton = findViewById(R.id.loginButton);
-        registerButton = findViewById(R.id.registerButton);
-        googleButton = findViewById(R.id.googleButton);
+        emailEditText =
+                findViewById(R.id.emailEditText);
 
-        loginButton.setOnClickListener(v -> loginWithEmail());
-        registerButton.setOnClickListener(v -> registerWithEmail());
-        googleButton.setOnClickListener(v -> loginWithGoogle());
+        passwordEditText =
+                findViewById(R.id.passwordEditText);
+
+        loginButton =
+                findViewById(R.id.loginButton);
+
+        registerButton =
+                findViewById(R.id.registerButton);
+
+        googleButton =
+                findViewById(R.id.googleButton);
+
+        loginButton.setOnClickListener(
+                v -> loginWithEmail()
+        );
+
+        registerButton.setOnClickListener(
+                v -> registerWithEmail()
+        );
+
+        googleButton.setOnClickListener(
+                v -> loginWithGoogle()
+        );
     }
 
     @Override
@@ -68,75 +87,125 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginWithEmail() {
 
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString();
+        String email =
+                emailEditText
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String password =
+                passwordEditText
+                        .getText()
+                        .toString();
 
         if (email.isEmpty()) {
-            emailEditText.setError("أدخل البريد الإلكتروني");
+
+            emailEditText.setError(
+                    "أدخل البريد الإلكتروني"
+            );
+
             return;
         }
 
         if (password.isEmpty()) {
-            passwordEditText.setError("أدخل كلمة المرور");
+
+            passwordEditText.setError(
+                    "أدخل كلمة المرور"
+            );
+
             return;
         }
 
         loginButton.setEnabled(false);
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+        mAuth.signInWithEmailAndPassword(
+                email,
+                password
+        ).addOnCompleteListener(
+                this,
+                task -> {
 
                     loginButton.setEnabled(true);
 
                     if (task.isSuccessful()) {
+
                         openMainActivity();
+
                     } else {
+
                         showError(
                                 task.getException(),
                                 "تعذر تسجيل الدخول"
                         );
                     }
-                });
+                }
+        );
     }
 
     private void registerWithEmail() {
 
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString();
+        String email =
+                emailEditText
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String password =
+                passwordEditText
+                        .getText()
+                        .toString();
 
         if (email.isEmpty()) {
-            emailEditText.setError("أدخل البريد الإلكتروني");
+
+            emailEditText.setError(
+                    "أدخل البريد الإلكتروني"
+            );
+
             return;
         }
 
         if (password.isEmpty()) {
-            passwordEditText.setError("أدخل كلمة المرور");
+
+            passwordEditText.setError(
+                    "أدخل كلمة المرور"
+            );
+
             return;
         }
 
         if (password.length() < 6) {
+
             passwordEditText.setError(
                     "كلمة المرور يجب أن تكون 6 أحرف على الأقل"
             );
+
             return;
         }
 
         registerButton.setEnabled(false);
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+        mAuth.createUserWithEmailAndPassword(
+                email,
+                password
+        ).addOnCompleteListener(
+                this,
+                task -> {
 
                     registerButton.setEnabled(true);
 
                     if (task.isSuccessful()) {
+
                         openMainActivity();
+
                     } else {
+
                         showError(
                                 task.getException(),
                                 "تعذر إنشاء الحساب"
                         );
                     }
-                });
+                }
+        );
     }
 
     private void loginWithGoogle() {
@@ -155,29 +224,33 @@ public class LoginActivity extends AppCompatActivity {
 
         googleButton.setEnabled(false);
 
-        /*
-         * مهم:
-         *
-         * نستخدم GetGoogleIdOption مباشرة.
-         *
-         * setFilterByAuthorizedAccounts(false)
-         * يسمح بعرض حساب Google حتى لو لم يستخدم
-         * هذا الحساب التطبيق من قبل.
-         *
-         * وهذا يعالج حالة:
-         * No credentials available
-         */
+        GetGoogleIdOption googleOption;
 
-        GetGoogleIdOption googleIdOption =
-                new GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(webClientId)
-                        .setAutoSelectEnabled(false)
-                        .build();
+        try {
+
+            googleOption =
+                    new GetGoogleIdOption.Builder()
+                            .setFilterByAuthorizedAccounts(false)
+                            .setServerClientId(webClientId)
+                            .setAutoSelectEnabled(false)
+                            .build();
+
+        } catch (Exception e) {
+
+            googleButton.setEnabled(true);
+
+            Toast.makeText(
+                    this,
+                    "تعذر إعداد تسجيل الدخول باستخدام Google",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
 
         GetCredentialRequest request =
                 new GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
+                        .addCredentialOption(googleOption)
                         .build();
 
         try {
@@ -208,9 +281,19 @@ public class LoginActivity extends AppCompatActivity {
 
                                 googleButton.setEnabled(true);
 
+                                String error =
+                                        e.getMessage();
+
+                                if (error == null ||
+                                        error.trim().isEmpty()) {
+
+                                    error =
+                                            "لم يتم العثور على حساب Google متاح للتسجيل.";
+                                }
+
                                 Toast.makeText(
                                         LoginActivity.this,
-                                        "تعذر اختيار حساب Google. تأكد من وجود حساب Google على الجهاز ثم حاول مرة أخرى.",
+                                        error,
                                         Toast.LENGTH_LONG
                                 ).show();
                             });
@@ -256,7 +339,7 @@ public class LoginActivity extends AppCompatActivity {
 
             Toast.makeText(
                     this,
-                    "لم يتم الحصول على بيانات حساب Google",
+                    "بيانات حساب Google غير صالحة",
                     Toast.LENGTH_LONG
             ).show();
 
@@ -268,13 +351,15 @@ public class LoginActivity extends AppCompatActivity {
 
         if (!GoogleIdTokenCredential
                 .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                .equals(customCredential.getType())) {
+                .equals(
+                        customCredential.getType()
+                )) {
 
             googleButton.setEnabled(true);
 
             Toast.makeText(
                     this,
-                    "نوع بيانات Google غير معروف",
+                    "نوع بيانات Google غير مدعوم",
                     Toast.LENGTH_LONG
             ).show();
 
@@ -328,39 +413,44 @@ public class LoginActivity extends AppCompatActivity {
                         null
                 );
 
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(
-                        this,
-                        task -> {
+        mAuth.signInWithCredential(
+                credential
+        ).addOnCompleteListener(
+                this,
+                task -> {
 
-                            googleButton.setEnabled(true);
+                    googleButton.setEnabled(true);
 
-                            if (task.isSuccessful()) {
+                    if (task.isSuccessful()) {
 
-                                openMainActivity();
+                        openMainActivity();
 
-                            } else {
+                    } else {
 
-                                showError(
-                                        task.getException(),
-                                        "تعذر تسجيل الدخول باستخدام Google"
-                                );
-                            }
-                        }
-                );
+                        showError(
+                                task.getException(),
+                                "تعذر تسجيل الدخول باستخدام Google"
+                        );
+                    }
+                }
+        );
     }
 
     private void showError(
             Exception exception,
             String defaultMessage) {
 
-        String message = defaultMessage;
+        String message =
+                defaultMessage;
 
         if (exception != null &&
                 exception.getMessage() != null &&
-                !exception.getMessage().trim().isEmpty()) {
+                !exception.getMessage()
+                        .trim()
+                        .isEmpty()) {
 
-            message = exception.getMessage();
+            message =
+                    exception.getMessage();
         }
 
         Toast.makeText(

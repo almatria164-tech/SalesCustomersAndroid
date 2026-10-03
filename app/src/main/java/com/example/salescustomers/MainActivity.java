@@ -46,29 +46,6 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
         setContentView(webView);
 
-webView.setOnApplyWindowInsetsListener((v, insets) -> {
-
-    int bottom = insets.getSystemWindowInsetBottom();
-
-    if (android.os.Build.VERSION.SDK_INT >= 29) {
-        bottom = Math.max(
-                bottom,
-                insets.getSystemGestureInsets().bottom
-        );
-    }
-
-    v.setPadding(
-            0,
-            0,
-            0,
-            bottom
-    );
-
-    return insets;
-});
-
-        setContentView(webView);
-
         WebSettings settings = webView.getSettings();
 
         // JavaScript
@@ -347,7 +324,7 @@ webView.setOnApplyWindowInsetsListener((v, insets) -> {
 
             runOnUiThread(() -> {
 
-                // First sign out from Firebase
+                // تسجيل الخروج من Firebase فورًا
                 try {
 
                     firebaseAuth.signOut();
@@ -355,7 +332,10 @@ webView.setOnApplyWindowInsetsListener((v, insets) -> {
                 } catch (Exception ignored) {
                 }
 
-                // Then clear Credential Manager state
+                // الانتقال إلى شاشة الدخول فورًا
+                openLoginScreen();
+
+                // تنظيف حالة Credential Manager في الخلفية
                 try {
 
                     ClearCredentialStateRequest request =
@@ -372,24 +352,19 @@ webView.setOnApplyWindowInsetsListener((v, insets) -> {
                                 @Override
                                 public void onResult(
                                         Void result) {
-
-                                    openLoginScreen();
+                                    // تم تنظيف الحالة
                                 }
 
                                 @Override
                                 public void onError(
                                         ClearCredentialException e) {
-
-                                    // Firebase logout already happened.
-                                    // Continue to login screen.
-                                    openLoginScreen();
+                                    // لا نمنع تسجيل الخروج
                                 }
                             }
                     );
 
                 } catch (Exception ignored) {
-
-                    openLoginScreen();
+                    // تسجيل الخروج تم بالفعل
                 }
 
             });

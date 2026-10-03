@@ -3,7 +3,6 @@ package com.example.salescustomers;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
-import java.security.SecureRandom;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -16,11 +15,13 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+
+import java.security.SecureRandom;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -87,6 +88,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // =========================================================
+    // EMAIL LOGIN
+    // =========================================================
+
     private void loginWithEmail() {
 
         String email =
@@ -143,6 +148,10 @@ public class LoginActivity extends AppCompatActivity {
                 }
         );
     }
+
+    // =========================================================
+    // EMAIL REGISTER
+    // =========================================================
 
     private void registerWithEmail() {
 
@@ -209,18 +218,34 @@ public class LoginActivity extends AppCompatActivity {
                 }
         );
     }
-    
-private String generateSecureRandomNonce() {
-    byte[] randomBytes = new byte[32];
-    new SecureRandom().nextBytes(randomBytes);
 
-    return Base64.encodeToString(
-            randomBytes,
-            Base64.NO_WRAP |
-            Base64.URL_SAFE |
-            Base64.NO_PADDING
-    );
-}
+    // =========================================================
+    // SECURE NONCE
+    // =========================================================
+
+    private String generateSecureRandomNonce() {
+
+        byte[] randomBytes =
+                new byte[32];
+
+        new SecureRandom().nextBytes(
+                randomBytes
+        );
+
+        return Base64.encodeToString(
+                randomBytes,
+                Base64.NO_WRAP
+                        |
+                Base64.URL_SAFE
+                        |
+                Base64.NO_PADDING
+        );
+    }
+
+    // =========================================================
+    // GOOGLE LOGIN
+    // =========================================================
+
     private void loginWithGoogle() {
 
         if (webClientId == null ||
@@ -237,16 +262,17 @@ private String generateSecureRandomNonce() {
 
         googleButton.setEnabled(false);
 
-        GetGoogleIdOption googleOption;
+        GetSignInWithGoogleOption googleOption;
 
         try {
 
             googleOption =
-                    new GetGoogleIdOption.Builder()
-                            .setFilterByAuthorizedAccounts(false)
-                            .setServerClientId(webClientId)
-                            .setAutoSelectEnabled(false)
-                            .setNonce(generateSecureRandomNonce())
+                    new GetSignInWithGoogleOption.Builder(
+                            webClientId
+                    )
+                            .setNonce(
+                                    generateSecureRandomNonce()
+                            )
                             .build();
 
         } catch (Exception e) {
@@ -264,7 +290,9 @@ private String generateSecureRandomNonce() {
 
         GetCredentialRequest request =
                 new GetCredentialRequest.Builder()
-                        .addCredentialOption(googleOption)
+                        .addCredentialOption(
+                                googleOption
+                        )
                         .build();
 
         try {
@@ -283,7 +311,9 @@ private String generateSecureRandomNonce() {
                                 GetCredentialResponse result) {
 
                             runOnUiThread(() ->
-                                    handleGoogleCredential(result)
+                                    handleGoogleCredential(
+                                            result
+                                    )
                             );
                         }
 
@@ -302,7 +332,7 @@ private String generateSecureRandomNonce() {
                                         error.trim().isEmpty()) {
 
                                     error =
-                                            "لم يتم العثور على حساب Google متاح للتسجيل.";
+                                            "تعذر تسجيل الدخول باستخدام Google";
                                 }
 
                                 Toast.makeText(
@@ -326,6 +356,10 @@ private String generateSecureRandomNonce() {
             ).show();
         }
     }
+
+    // =========================================================
+    // HANDLE GOOGLE CREDENTIAL
+    // =========================================================
 
     private void handleGoogleCredential(
             GetCredentialResponse result) {
@@ -404,7 +438,9 @@ private String generateSecureRandomNonce() {
                 return;
             }
 
-            firebaseAuthWithGoogle(idToken);
+            firebaseAuthWithGoogle(
+                    idToken
+            );
 
         } catch (Exception e) {
 
@@ -417,6 +453,10 @@ private String generateSecureRandomNonce() {
             ).show();
         }
     }
+
+    // =========================================================
+    // FIREBASE GOOGLE AUTH
+    // =========================================================
 
     private void firebaseAuthWithGoogle(
             String idToken) {
@@ -450,6 +490,10 @@ private String generateSecureRandomNonce() {
         );
     }
 
+    // =========================================================
+    // ERROR
+    // =========================================================
+
     private void showError(
             Exception exception,
             String defaultMessage) {
@@ -474,6 +518,10 @@ private String generateSecureRandomNonce() {
         ).show();
     }
 
+    // =========================================================
+    // OPEN MAIN
+    // =========================================================
+
     private void openMainActivity() {
 
         Intent intent =
@@ -483,7 +531,8 @@ private String generateSecureRandomNonce() {
                 );
 
         intent.addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_NEW_TASK
+                        |
                 Intent.FLAG_ACTIVITY_CLEAR_TASK
         );
 

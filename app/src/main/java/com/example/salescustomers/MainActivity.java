@@ -360,7 +360,7 @@ public void logout() {
             openLoginScreen();
         }
     });
-}--------------------------------
+}
 
         @JavascriptInterface
         public void showMessage(String message) {

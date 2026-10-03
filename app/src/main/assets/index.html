@@ -5275,18 +5275,25 @@ function renderStatement(){
         notes:x.notes
       }));
 
-  const rows = [
-    ...invoices,
-    ...receipts,
-    ...returnsList
-  ].sort(
-    (a,b)=>
-      String(a.date)
-        .localeCompare(
-          String(b.date)
-        )
-  );
+  let runningBalance = opening;
 
+rows.forEach(row => {
+
+  if(row.kind === "invoice"){
+    runningBalance += number(row.amount);
+  }
+
+  if(row.kind === "receipt"){
+    runningBalance -= number(row.amount);
+  }
+
+  if(row.kind === "return"){
+    runningBalance -= number(row.amount);
+  }
+
+  row.runningBalance = runningBalance;
+
+});
   area.innerHTML=`
 
     <div class="panel">
@@ -5403,6 +5410,7 @@ function renderStatement(){
                 <th>${escapeHtml(tr("actions"))}</th>
                 <th>${escapeHtml(tr("invoiceNo"))}</th>
                 <th>${escapeHtml(tr("amount"))}</th>
+<th>الرصيد</th>
               </tr>
 
             </thead>

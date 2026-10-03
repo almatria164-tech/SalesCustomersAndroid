@@ -50,9 +50,9 @@ public class LoginActivity extends AppCompatActivity {
 
         webClientId = getString(R.string.default_web_client_id);
 
-        emailInput = findViewById(R.id.email);
-        passwordInput = findViewById(R.id.password);
-
+        emailInput = findViewById(R.id.emailEditText);
+        passwordInput = findViewById(R.id.passwordEditText);
+        
         loginButton = findViewById(R.id.loginButton);
         registerButton = findViewById(R.id.registerButton);
         googleButton = findViewById(R.id.googleButton);

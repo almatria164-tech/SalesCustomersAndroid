@@ -320,59 +320,47 @@ public class MainActivity extends Activity {
         // -----------------------------------------------------
 
         @JavascriptInterface
-        public void logout() {
+public void logout() {
 
-            runOnUiThread(() -> {
+    runOnUiThread(() -> {
 
-                // تسجيل الخروج من Firebase فورًا
-                try {
-
-                    firebaseAuth.signOut();
-
-                } catch (Exception ignored) {
-                }
-
-                // الانتقال إلى شاشة الدخول فورًا
-                openLoginScreen();
-
-                // تنظيف حالة Credential Manager في الخلفية
-                try {
-
-                    ClearCredentialStateRequest request =
-                            new ClearCredentialStateRequest();
-
-                    credentialManager.clearCredentialStateAsync(
-                            request,
-                            null,
-                            Runnable::run,
-                            new CredentialManagerCallback<
-                                    Void,
-                                    ClearCredentialException>() {
-
-                                @Override
-                                public void onResult(
-                                        Void result) {
-                                    // تم تنظيف الحالة
-                                }
-
-                                @Override
-                                public void onError(
-                                        ClearCredentialException e) {
-                                    // لا نمنع تسجيل الخروج
-                                }
-                            }
-                    );
-
-                } catch (Exception ignored) {
-                    // تسجيل الخروج تم بالفعل
-                }
-
-            });
+        try {
+            firebaseAuth.signOut();
+        } catch (Exception ignored) {
         }
 
-        // -----------------------------------------------------
-        // MESSAGE
-        // -----------------------------------------------------
+        try {
+
+            ClearCredentialStateRequest request =
+                    new ClearCredentialStateRequest();
+
+            credentialManager.clearCredentialStateAsync(
+                    request,
+                    null,
+                    Runnable::run,
+                    new CredentialManagerCallback<
+                            Void,
+                            ClearCredentialException>() {
+
+                        @Override
+                        public void onResult(Void result) {
+                            openLoginScreen();
+                        }
+
+                        @Override
+                        public void onError(
+                                ClearCredentialException e) {
+                            openLoginScreen();
+                        }
+                    }
+            );
+
+        } catch (Exception ignored) {
+
+            openLoginScreen();
+        }
+    });
+}--------------------------------
 
         @JavascriptInterface
         public void showMessage(String message) {

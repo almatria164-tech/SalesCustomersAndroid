@@ -12,13 +12,24 @@
 
 <title>Smart Nota - سمارت نوتا</title>
 
-<style>
-  html, body {
+html {
   width: 100%;
-  max-width: 100%;
   min-height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+
+  /* هامش فوق وتحت فقط */
+  padding-top: 10px;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+
+  margin: 0;
   overflow-x: hidden;
   box-sizing: border-box;
 }

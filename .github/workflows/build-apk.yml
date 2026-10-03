@@ -22,6 +22,9 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Check signing SHA-1
+        run: gradle signingReport --no-daemon
+
       - name: Build APK
         run: gradle assembleDebug --no-daemon
 

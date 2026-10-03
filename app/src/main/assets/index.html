@@ -5276,7 +5276,17 @@ function renderStatement(){
       }));
 
   let runningBalance = opening;
-
+const rows = [
+  ...invoices,
+  ...receipts,
+  ...returnsList
+].sort(
+  (a, b) =>
+    String(a.date || "").localeCompare(
+      String(b.date || "")
+    )
+);
+  
 rows.forEach(row => {
 
   if(row.kind === "invoice"){

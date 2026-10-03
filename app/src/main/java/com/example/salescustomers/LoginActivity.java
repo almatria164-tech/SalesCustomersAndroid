@@ -2,6 +2,8 @@ package com.example.salescustomers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
+import java.security.SecureRandom;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -207,7 +209,18 @@ public class LoginActivity extends AppCompatActivity {
                 }
         );
     }
+    
+private String generateSecureRandomNonce() {
+    byte[] randomBytes = new byte[32];
+    new SecureRandom().nextBytes(randomBytes);
 
+    return Base64.encodeToString(
+            randomBytes,
+            Base64.NO_WRAP |
+            Base64.URL_SAFE |
+            Base64.NO_PADDING
+    );
+}
     private void loginWithGoogle() {
 
         if (webClientId == null ||
@@ -233,6 +246,7 @@ public class LoginActivity extends AppCompatActivity {
                             .setFilterByAuthorizedAccounts(false)
                             .setServerClientId(webClientId)
                             .setAutoSelectEnabled(false)
+                            .setNonce(generateSecureRandomNonce())
                             .build();
 
         } catch (Exception e) {

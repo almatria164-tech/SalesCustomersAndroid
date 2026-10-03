@@ -12,10 +12,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.credentials.ClearCredentialStateRequest;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.exceptions.ClearCredentialException;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -28,6 +30,7 @@ public class MainActivity extends Activity {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
+    private CredentialManager credentialManager;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -36,6 +39,9 @@ public class MainActivity extends Activity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
+
+        credentialManager =
+                CredentialManager.create(this);
 
         webView = new WebView(this);
 
@@ -105,7 +111,6 @@ public class MainActivity extends Activity {
                     return firebaseAuth
                             .getCurrentUser()
                             .getUid();
-
                 }
 
             } catch (Exception ignored) {
@@ -170,7 +175,6 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
 
                 return false;
-
             }
         }
 
@@ -207,7 +211,8 @@ public class MainActivity extends Activity {
 
                 data.put(
                         "updatedAt",
-                        com.google.firebase.firestore.FieldValue.serverTimestamp()
+                        com.google.firebase.firestore.FieldValue
+                                .serverTimestamp()
                 );
 
                 firestore
@@ -289,7 +294,6 @@ public class MainActivity extends Activity {
                                         ) {
 
                                             json = saved;
-
                                         }
                                     }
 
@@ -321,6 +325,7 @@ public class MainActivity extends Activity {
 
             runOnUiThread(() -> {
 
+                // First sign out from Firebase
                 try {
 
                     firebaseAuth.signOut();
@@ -328,23 +333,42 @@ public class MainActivity extends Activity {
                 } catch (Exception ignored) {
                 }
 
-                Intent intent =
-                        new Intent(
-                                MainActivity.this,
-                                LoginActivity.class
-                        );
+                // Then clear Credential Manager state
+                try {
 
-                intent.addFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                |
-                        Intent.FLAG_ACTIVITY_NEW_TASK
-                                |
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
-                );
+                    ClearCredentialStateRequest request =
+                            new ClearCredentialStateRequest();
 
-                startActivity(intent);
+                    credentialManager.clearCredentialStateAsync(
+                            request,
+                            null,
+                            Runnable::run,
+                            new CredentialManagerCallback<
+                                    Void,
+                                    ClearCredentialException>() {
 
-                finish();
+                                @Override
+                                public void onResult(
+                                        Void result) {
+
+                                    openLoginScreen();
+                                }
+
+                                @Override
+                                public void onError(
+                                        ClearCredentialException e) {
+
+                                    // Firebase logout already happened.
+                                    // Continue to login screen.
+                                    openLoginScreen();
+                                }
+                            }
+                    );
+
+                } catch (Exception ignored) {
+
+                    openLoginScreen();
+                }
 
             });
         }
@@ -464,6 +488,35 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
+    // OPEN LOGIN SCREEN
+    // =========================================================
+
+    private void openLoginScreen() {
+
+        runOnUiThread(() -> {
+
+            Intent intent =
+                    new Intent(
+                            MainActivity.this,
+                            LoginActivity.class
+                    );
+
+            intent.addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK
+                            |
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            |
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+            );
+
+            startActivity(intent);
+
+            finish();
+
+        });
+    }
+
+    // =========================================================
     // JAVASCRIPT CALLBACKS
     // =========================================================
 
@@ -548,7 +601,6 @@ public class MainActivity extends Activity {
         } else {
 
             super.onBackPressed();
-
         }
     }
 
@@ -563,7 +615,9 @@ public class MainActivity extends Activity {
 
             webView.stopLoading();
 
-            webView.loadUrl("about:blank");
+            webView.loadUrl(
+                    "about:blank"
+            );
 
             webView.clearHistory();
 

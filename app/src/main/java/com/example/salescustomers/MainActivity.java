@@ -44,6 +44,28 @@ public class MainActivity extends Activity {
                 CredentialManager.create(this);
 
         webView = new WebView(this);
+        setContentView(webView);
+
+webView.setOnApplyWindowInsetsListener((v, insets) -> {
+
+    int bottom = insets.getSystemWindowInsetBottom();
+
+    if (android.os.Build.VERSION.SDK_INT >= 29) {
+        bottom = Math.max(
+                bottom,
+                insets.getSystemGestureInsets().bottom
+        );
+    }
+
+    v.setPadding(
+            0,
+            0,
+            0,
+            bottom
+    );
+
+    return insets;
+});
 
         setContentView(webView);
 

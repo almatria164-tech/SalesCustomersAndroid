@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Smart Note</string>
+    <string name="app_name">Smart Nota</string>
 
     <string name="default_web_client_id" translatable="false">644560466893-hj2dlvt2pps8mh4bq14u8983qilbuopo.apps.googleusercontent.com</string>
 

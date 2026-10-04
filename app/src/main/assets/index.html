@@ -3688,7 +3688,9 @@ function saveCustomer(){
   closeModal("customerModal");
 
   saveEverything();
-
+  
+renderInvoices();
+  
   showToast(
     tr("saved"),
     "success"

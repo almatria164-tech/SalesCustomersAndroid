@@ -5273,9 +5273,18 @@ function renderStatement(){
         number:x.number,
         amount:number(x.amount),
         notes:x.notes
-      }));
 
-  let runningBalance = opening;
+          const rows = [
+  ...invoices,
+  ...receipts,
+  ...returnsList
+].sort((a, b) =>
+  String(a.date || "").localeCompare(
+    String(b.date || "")
+  )
+);
+
+let runningBalance = opening;
 
 rows.forEach(row => {
 

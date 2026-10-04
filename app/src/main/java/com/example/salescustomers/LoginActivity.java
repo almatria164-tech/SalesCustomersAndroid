@@ -274,20 +274,16 @@ public class LoginActivity extends AppCompatActivity {
 
             firebaseLoginWithGoogle(idToken);
 
-        } catch (GoogleIdTokenParsingException e) {
-
-            runOnUiThread(() -> {
-
-                googleButton.setEnabled(true);
-
-                Toast.makeText(
-                        LoginActivity.this,
-                        "تعذر قراءة بيانات Google",
-                        Toast.LENGTH_LONG
-                ).show();
-            });
-        }
-    }
+        } catch (Exception e) {
+    runOnUiThread(() -> {
+        googleButton.setEnabled(true);
+        Toast.makeText(
+                LoginActivity.this,
+                "تعذر قراءة بيانات Google",
+                Toast.LENGTH_LONG
+        ).show();
+    });
+}
 
     // =========================
     // Firebase Google Login

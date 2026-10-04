@@ -5288,8 +5288,8 @@ function renderStatement(){
 let runningBalance = opening;
 
 rows.forEach(row => {
-
-  if(row.kind === "invoice"){
+          
+  if(row.kind === "invoice"){  
     runningBalance += number(row.amount);
   }
 

@@ -1,5 +1,8 @@
 package com.example.salescustomers;
 
+import android.app.AlertDialog;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;

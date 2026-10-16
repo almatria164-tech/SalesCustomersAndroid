@@ -156,6 +156,31 @@ public class MainActivity extends Activity {
         // Keep links inside WebView
         webView.setWebViewClient(
                 new WebViewClient()
+            webView.setWebChromeClient(new WebChromeClient() {
+
+    @Override
+    public boolean onJsConfirm(
+            WebView view,
+            String url,
+            String message,
+            JsResult result
+    ) {
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("تأكيد العملية")
+                .setMessage(message)
+                .setPositiveButton("موافق",
+                        (dialog, which) -> result.confirm())
+                .setNegativeButton("إلغاء",
+                        (dialog, which) -> result.cancel())
+                .setOnCancelListener(
+                        dialog -> result.cancel()
+                )
+                .show();
+
+        return true;
+    }
+});
         );
 
         // =====================================================

@@ -4020,27 +4020,28 @@ function saveInvoice(){
 
 function deleteInvoice(id){
 
-  if(
-    !confirm(
-      tr("confirmDelete")
-    )
-  ){
+  if(!confirm(tr("confirmDelete"))){
     return;
   }
 
+  const before = appData.invoices.length;
+
   appData.invoices =
     appData.invoices.filter(
-      x=>x.id!==id
+      invoice => String(invoice.id) !== String(id)
     );
 
-  saveEverything();
+  if(appData.invoices.length === before){
+    showToast("لم يتم العثور على الفاتورة", "error");
+    return;
+  }
 
-  showToast(
-    tr("deleted"),
-    "success"
-  );
+  saveLocal();
+  renderAll();
+  saveCloudData();
+
+  showToast(tr("deleted"), "success");
 }
-
 /* =========================================================
    RENDER INVOICES
 ========================================================= */

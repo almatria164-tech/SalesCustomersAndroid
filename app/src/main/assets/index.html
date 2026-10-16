@@ -3699,20 +3699,28 @@ renderInvoices();
 
 function deleteCustomer(id){
 
-  if(
-    !confirm(
-      tr("confirmDelete")
-    )
-  ){
+  if(!confirm(tr("confirmDelete"))){
+    return;
+  }
+
+  const customerExists =
+    appData.customers.some(
+      customer => String(customer.id) === String(id)
+    );
+
+  if(!customerExists){
+    showToast("العميل غير موجود", "error");
     return;
   }
 
   appData.customers =
     appData.customers.filter(
-      x=>x.id!==id
+      customer => String(customer.id) !== String(id)
     );
 
   saveEverything();
+
+  renderCustomers();
 
   showToast(
     tr("deleted"),

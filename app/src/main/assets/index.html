@@ -3419,44 +3419,38 @@ function normalizeData(data){
    LOCAL SAFETY COPY
 ========================================================= */
 
-function saveLocal(){
-
+function getLocalDataKey(){
   try{
-
-    localStorage.setItem(
-      "smartNotaData",
-      JSON.stringify(appData)
-    );
-
+    const uid = window.Android &&
+      typeof window.Android.getUserUid === "function"
+      ? window.Android.getUserUid()
+      : "";
+    return uid ? "smartNotaData_" + uid : "smartNotaData_guest";
   }catch(error){
-
     console.error(error);
+    return "smartNotaData_guest";
+  }
+}
 
+function saveLocal(){
+  try{
+    localStorage.setItem(getLocalDataKey(), JSON.stringify(appData));
+  }catch(error){
+    console.error(error);
   }
 }
 
 function loadLocal(){
-
   try{
-
-    const raw =
-      localStorage.getItem(
-        "smartNotaData"
-      );
-
+    const raw = localStorage.getItem(getLocalDataKey());
     if(raw){
-
-      appData =
-        normalizeData(
-          JSON.parse(raw)
-        );
-
+      appData = normalizeData(JSON.parse(raw));
+    }else{
+      appData = clone(DEFAULT_DATA);
     }
-
   }catch(error){
-
+    console.error(error);
     appData = clone(DEFAULT_DATA);
-
   }
 }
 

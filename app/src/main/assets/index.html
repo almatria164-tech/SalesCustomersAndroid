@@ -1316,7 +1316,7 @@ body.dark .bottom-nav{
       <div class="brand-box">
         <div class="logo">📒</div>
         <div>
-          <div class="brand-name">Smart Nota</div>
+          <div class="brand-name">QONTA</div>
           <div class="brand-sub" data-i18n="tagline">
             الدفتر الإلكتروني الذكي للمندوبين
           </div>
@@ -2250,7 +2250,7 @@ body.dark .bottom-nav{
       <div class="logo">📒</div>
 
       <div>
-        <div class="brand-name">Smart Nota</div>
+        <div class="brand-name">QONTA</div>
         <div class="brand-sub">
           الدفتر الإلكتروني الذكي للمندوبين
         </div>
@@ -2816,7 +2816,7 @@ body.dark .bottom-nav{
 <div id="printArea" class="hidden"></div>
 <script>
 /* =========================================================
-   SMART NOTA
+   QONTA
    APPLICATION DATA
 ========================================================= */
 
@@ -2993,7 +2993,7 @@ const translations = {
     returnsSub:"Manage customer returns",
     reportsSub:"Sales, collections and commission reports",
     statementSub:"Complete customer account statement",
-    settingsSub:"Smart Nota settings",
+    settingsSub:"QONTA settings",
     name:"Name",
     phone:"Phone",
     commission:"Commission",
@@ -3425,10 +3425,10 @@ function getLocalDataKey(){
       typeof window.Android.getUserUid === "function"
       ? window.Android.getUserUid()
       : "";
-    return uid ? "smartNotaData_" + uid : "smartNotaData_guest";
+    return uid ? "QONTAData_" + uid : "QONTAData_guest";
   }catch(error){
     console.error(error);
-    return "smartNotaData_guest";
+    return "QONTAData_guest";
   }
 }
 

@@ -67,6 +67,14 @@
           }
         },
         {
+          "client_id": "644560466893-h4nbdnt3a2fps9qdf2f5tvo54097ti1i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.salescustomers",
+            "certificate_hash": "3bfeb741e76ddce15204baa55e0674d76c70b281"
+          }
+        },
+        {
           "client_id": "644560466893-k3evcj2st5e435oob8jcttd9u9kkki20.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

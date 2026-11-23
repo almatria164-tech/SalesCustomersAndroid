@@ -14,7 +14,7 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -208,7 +208,7 @@ public class LoginActivity extends AppCompatActivity {
         );
     }
 
-    private void loginWithGoogle() {
+   private void loginWithGoogle() {
 
         if (webClientId == null ||
                 webClientId.trim().isEmpty()) {
@@ -224,36 +224,16 @@ public class LoginActivity extends AppCompatActivity {
 
         googleButton.setEnabled(false);
 
-        GetGoogleIdOption googleOption;
-
         try {
 
-            googleOption =
-                    new GetGoogleIdOption.Builder()
-                            .setFilterByAuthorizedAccounts(false)
-                            .setServerClientId(webClientId)
-                            .setAutoSelectEnabled(false)
+            GetSignInWithGoogleOption googleOption =
+                    new GetSignInWithGoogleOption.Builder(webClientId)
                             .build();
 
-        } catch (Exception e) {
-
-            googleButton.setEnabled(true);
-
-            Toast.makeText(
-                    this,
-                    "تعذر إعداد تسجيل الدخول باستخدام Google",
-                    Toast.LENGTH_LONG
-            ).show();
-
-            return;
-        }
-
-        GetCredentialRequest request =
-                new GetCredentialRequest.Builder()
-                        .addCredentialOption(googleOption)
-                        .build();
-
-        try {
+            GetCredentialRequest request =
+                    new GetCredentialRequest.Builder()
+                            .addCredentialOption(googleOption)
+                            .build();
 
             credentialManager.getCredentialAsync(
                     this,
@@ -281,14 +261,11 @@ public class LoginActivity extends AppCompatActivity {
 
                                 googleButton.setEnabled(true);
 
-                                String error =
-                                        e.getMessage();
+                                String error = e.getMessage();
 
                                 if (error == null ||
                                         error.trim().isEmpty()) {
-
-                                    error =
-                                            "لم يتم العثور على حساب Google متاح للتسجيل.";
+                                    error = "تعذر تسجيل الدخول باستخدام Google. حاول مرة أخرى.";
                                 }
 
                                 Toast.makeText(
@@ -312,7 +289,6 @@ public class LoginActivity extends AppCompatActivity {
             ).show();
         }
     }
-
     private void handleGoogleCredential(
             GetCredentialResponse result) {
 

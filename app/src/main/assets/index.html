@@ -6296,53 +6296,87 @@ function printStatement(){
   const receipts =
     customerReceipts(id);
 
-  const commission =
-    customerCommissionTotal(id);
-
   const balance =
     customerBalance(id);
 
-  const rows = [
+  const movements = [
 
     ...appData.invoices
       .filter(x=>x.customerId===id)
-      .map(x=>`
-        <tr>
-          <td>${escapeHtml(x.date)}</td>
-          <td>${escapeHtml(tr("invoice"))}</td>
-          <td>${escapeHtml(x.number || "-")}</td>
-          <td>${money(
-            Math.max(
-              0,
-              number(x.total)-number(x.discount)
-            )
-          )}</td>
-        </tr>
-      `),
+      .map(x=>({
+        kind:"invoice",
+        date:x.date,
+        number:x.number || "-",
+        amount:Math.max(
+          0,
+          number(x.total)-number(x.discount)
+        ),
+        notes:x.notes || ""
+      })),
 
     ...appData.receipts
       .filter(x=>x.customerId===id)
-      .map(x=>`
-        <tr>
-          <td>${escapeHtml(x.date)}</td>
-          <td>${escapeHtml(tr("receipt"))}</td>
-          <td>${escapeHtml(x.number || "-")}</td>
-          <td>${money(x.amount)}</td>
-        </tr>
-      `),
+      .map(x=>({
+        kind:"receipt",
+        date:x.date,
+        number:x.number || "-",
+        amount:number(x.amount),
+        notes:x.notes || ""
+      })),
 
     ...appData.returns
       .filter(x=>x.customerId===id)
-      .map(x=>`
-        <tr>
-          <td>${escapeHtml(x.date)}</td>
-          <td>${escapeHtml(tr("return"))}</td>
-          <td>${escapeHtml(x.number || "-")}</td>
-          <td>${money(x.amount)}</td>
-        </tr>
-      `)
+      .map(x=>({
+        kind:"return",
+        date:x.date,
+        number:x.number || "-",
+        amount:number(x.amount),
+        notes:x.notes || ""
+      }))
 
-  ].join("");
+  ].sort((a,b)=>
+    String(a.date || "").localeCompare(
+      String(b.date || "")
+    )
+  );
+
+  let runningBalance = opening;
+
+  const rows = movements.map(row=>{
+
+    if(row.kind==="invoice"){
+      runningBalance += row.amount;
+    }
+
+    if(row.kind==="receipt"){
+      runningBalance -= row.amount;
+    }
+
+    if(row.kind==="return"){
+      runningBalance -= row.amount;
+    }
+
+    const action =
+      row.kind==="invoice"
+        ? tr("invoice")
+        : row.kind==="receipt"
+          ? tr("receipt")
+          : tr("return");
+
+    return `
+      <tr>
+        <td>${escapeHtml(row.date || "-")}</td>
+        <td>${escapeHtml(action)}</td>
+        <td>${escapeHtml(row.number)}</td>
+        <td>${money(row.amount)}</td>
+        <td style="white-space:pre-wrap;overflow-wrap:anywhere;">
+          ${escapeHtml(row.notes || "-")}
+        </td>
+        <td>${money(runningBalance)}</td>
+      </tr>
+    `;
+
+  }).join("");
 
   printHtml(`
 
@@ -6353,9 +6387,7 @@ function printStatement(){
       </div>
 
       <div class="title">
-        ${escapeHtml(
-          tr("statement")
-        )}
+        ${escapeHtml(tr("statement"))}
       </div>
 
       <div class="sub">
@@ -6407,9 +6439,6 @@ function printStatement(){
     <div class="total">
       ${escapeHtml(tr("finalBalance"))}:
       ${money(balance)}
-      <br>
-      ${escapeHtml(tr("commissionValue"))}:
-      ${money(commission)}
     </div>
 
     <table>
@@ -6420,6 +6449,16 @@ function printStatement(){
           <th>${escapeHtml(tr("actions"))}</th>
           <th>${escapeHtml(tr("invoiceNo"))}</th>
           <th>${escapeHtml(tr("amount"))}</th>
+          <th>${escapeHtml(
+            appData.settings.language==="ar"
+              ? "الملاحظات"
+              : "Notes"
+          )}</th>
+          <th>${escapeHtml(
+            appData.settings.language==="ar"
+              ? "الرصيد"
+              : "Balance"
+          )}</th>
         </tr>
       </thead>
 
@@ -6432,11 +6471,6 @@ function printStatement(){
   `);
 
 }
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
 function logoutApp(){
 
   if(

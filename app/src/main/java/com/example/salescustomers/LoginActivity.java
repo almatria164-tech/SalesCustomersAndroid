@@ -261,18 +261,26 @@ public class LoginActivity extends AppCompatActivity {
 
                                 googleButton.setEnabled(true);
 
-                                String error = e.getMessage();
+                              StringBuilder details = new StringBuilder();
 
-                                if (error == null ||
-                                        error.trim().isEmpty()) {
-                                    error = "تعذر تسجيل الدخول باستخدام Google. حاول مرة أخرى.";
-                                }
+details.append("نوع الخطأ:\n")
+        .append(e.getClass().getName());
 
-                                Toast.makeText(
-                                        LoginActivity.this,
-                                        error,
-                                        Toast.LENGTH_LONG
-                                ).show();
+details.append("\n\nالرسالة:\n")
+        .append(e.getMessage());
+
+if (e.getCause() != null) {
+    details.append("\n\nالسبب:\n")
+            .append(e.getCause().toString());
+}
+
+new androidx.appcompat.app.AlertDialog.Builder(
+        LoginActivity.this
+)
+        .setTitle("تفاصيل خطأ Google")
+        .setMessage(details.toString())
+        .setPositiveButton("حسنًا", null)
+        .show();
                             });
                         }
                     }
